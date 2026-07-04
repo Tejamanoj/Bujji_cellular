@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-gold: #D4AF37;
+  --color-accent-gold: #C5A880;
+  --color-light-gold: #F3E5AB;
+  --color-dark-gold: #AA7C11;
+  --color-pure-black: #080808;
+  --color-charcoal-black: #0D0D0D;
+  --color-card-black: #111111;
+  --color-gold-glow: rgba(212, 175, 55, 0.15);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Geist', system-ui, sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s infinite alternate;
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-spin-slow: spin 12s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes pulse-glow {
+    0%   { box-shadow: 0 0 5px  rgba(212,175,55,0.2); }
+    100% { box-shadow: 0 0 20px rgba(212,175,55,0.7); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+  @keyframes marquee {
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+
+/* ─── RESET / BASE ─────────────────── */
+:root {
+  --background: #080808;
+  --foreground: #F0F0F0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR ─────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+/* ─── SELECTION ─────────────────────── */
+::selection { background: rgba(212,175,55,0.35); color: #fff; }
+
+/* ─── GOLD TEXT ─────────────────────── */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fff5cc 0%, #D4AF37 40%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* hero headline animated gradient */
+.text-hero-gradient {
+  background: linear-gradient(270deg, #fff 0%, #D4AF37 30%, #f59e0b 50%, #D4AF37 70%, #fff 100%);
+  background-size: 400% 100%;
+  animation: gradientShift 6s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── GLASS UTILITIES ───────────────── */
+.glass-panel {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.025);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  border-color: rgba(212,175,55,0.3);
+  box-shadow: 0 16px 48px -12px rgba(212,175,55,0.12);
+  transform: translateY(-3px);
+}
+
+/* premium card — heavy frosted glass */
+.ultra-glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 30px 70px -20px rgba(0,0,0,0.9),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+}
+.ultra-glass:hover {
+  border-color: rgba(212,175,55,0.25);
+  box-shadow:
+    0 40px 80px -20px rgba(0,0,0,0.95),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 0 60px -20px rgba(212,175,55,0.08);
+}
+
+/* ─── MARQUEE ───────────────────────── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+/* ─── NEON LINE ─────────────────────── */
+.neon-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.5) 30%, rgba(255,255,255,0.15) 50%, rgba(212,175,55,0.5) 70%, transparent 100%);
+}
+
+/* ─── GLOW BUTTONS ──────────────────── */
+.btn-gold {
+  background: #D4AF37;
+  color: #080808;
+  font-weight: 800;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 rgba(212,175,55,0);
+}
+.btn-gold:hover {
+  background: #f0cc55;
+  box-shadow: 0 0 30px rgba(212,175,55,0.5), 0 0 60px rgba(212,175,55,0.2);
+  transform: scale(1.03);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(212,175,55,0.5);
+}
+
+/* ─── STAT CARD ─────────────────────── */
+.stat-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+.stat-card:hover {
+  background: rgba(212,175,55,0.05);
+  border-color: rgba(212,175,55,0.2);
+}
+
+/* ─── BACKGROUND ────────────────────── */
+.site-bg {
+  background-color: #080808;
+  /* very subtle noise grain */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* ambient glow spots */
+.ambient-gold {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  z-index: 0;
+}
