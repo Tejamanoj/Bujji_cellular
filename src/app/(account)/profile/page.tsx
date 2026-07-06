@@ -11,7 +11,7 @@ import { User as UserIcon, Camera, Plus, Trash2, Award, ShieldCheck, MapPin, Cre
 
 export default function ProfilePage() {
   const { user, updateProfileImage } = useAuthStore();
-  const { addresses, cards, removeAddress, removeCard } = useUserStore();
+  const { addresses, cards, removeAddress, removeCard, syncUserData } = useUserStore();
   const { showToast } = useUIStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -19,6 +19,13 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [uploading, setUploading] = useState(false);
+
+  React.useEffect(() => {
+    if (user?.id) {
+      const unsub = syncUserData(user.id);
+      return () => unsub();
+    }
+  }, [user?.id]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();

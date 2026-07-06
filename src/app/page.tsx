@@ -86,9 +86,13 @@ function Stat({ value, label }: { value: string; label: string }) {
    PAGE
 ───────────────────────────────────────── */
 export default function HomePage() {
-  const { products } = useProductStore();
+  const { products, fetchProducts } = useProductStore();
   const featured = products.filter(p => p.featured);
   const flashSale = products.filter(p => p.flashSale);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -166,7 +170,8 @@ export default function HomePage() {
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}
-                    className="btn-gold inline-flex items-center gap-2.5 text-sm px-8 py-3.5"
+                    suppressHydrationWarning
+                    className="btn-gold inline-flex items-center gap-2.5 text-sm px-8 py-3.5 cursor-pointer"
                   >
                     Shop Collection <ArrowRight size={15} />
                   </motion.button>
@@ -175,7 +180,8 @@ export default function HomePage() {
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}
-                    className="btn-outline inline-flex items-center gap-2.5 text-sm px-8 py-3.5"
+                    suppressHydrationWarning
+                    className="btn-outline inline-flex items-center gap-2.5 text-sm px-8 py-3.5 cursor-pointer"
                   >
                     <Wrench size={14} /> Book Repair
                   </motion.button>
@@ -350,7 +356,8 @@ export default function HomePage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="btn-gold inline-flex items-center gap-2.5 text-sm px-10 py-4"
+                  suppressHydrationWarning
+                  className="btn-gold inline-flex items-center gap-2.5 text-sm px-10 py-4 cursor-pointer"
                 >
                   Explore Collection <ArrowRight size={15} />
                 </motion.button>
@@ -359,7 +366,8 @@ export default function HomePage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="btn-outline inline-flex items-center gap-2.5 text-sm px-10 py-4"
+                  suppressHydrationWarning
+                  className="btn-outline inline-flex items-center gap-2.5 text-sm px-10 py-4 cursor-pointer"
                 >
                   Book a Repair
                 </motion.button>

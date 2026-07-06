@@ -7,6 +7,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useOrderStore } from '@/store/orderStore';
 import { useUIStore } from '@/store/uiStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Input } from '@/components/common/Input';
@@ -47,9 +48,11 @@ export default function CheckoutPage() {
   const actualShipping = shippingMethod === 'express' ? 15 : baseShipping;
   const actualTotal = subtotal - discount + actualShipping;
 
+  const { user } = useAuthStore();
+
   const handleAddNewAddress = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAddrStreet || !newAddrCity || !newAddrZip) return;
+    if (!newAddrStreet || !newAddrCity || !newAddrZip || !user) return;
     const newAddr = {
       name: newAddrName || 'Saved Address',
       street: newAddrStreet,
@@ -59,23 +62,21 @@ export default function CheckoutPage() {
       phone: newAddrPhone,
       isDefault: false,
     };
-    addAddress(newAddr);
+    addAddress(user.id, newAddr);
     showToast('Delivery address saved.', 'success');
     setShowNewAddrForm(false);
-    // Select the newly added address (which will be at the end of the array)
-    // For simplicity, we can let user click select, or default back.
   };
 
   const handleAddNewCard = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCardHolder || !newCardNumber) return;
+    if (!newCardHolder || !newCardNumber || !user) return;
     const newCard = {
       holderName: newCardHolder,
-      cardNumber: 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ ' + newCardNumber.slice(-4),
+      cardNumber: '•••• •••• •••• ' + newCardNumber.slice(-4),
       expiry: newCardExpiry,
       cardType: 'visa' as const,
     };
-    addCard(newCard);
+    addCard(user.id, newCard);
     showToast('Payment method saved.', 'success');
     setShowNewCardForm(false);
   };
@@ -90,18 +91,32 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!user) {
+      showToast('Please log in to complete your transaction.', 'error');
+      router.push('/login');
+      return;
+    }
+
     try {
       const order = await createOrder(
+        user.id,
+        user.name,
+        user.email,
         items,
         { subtotal, discount, shipping: actualShipping, total: actualTotal },
         address,
         card ? `${card.cardType.toUpperCase()} ending in ${card.cardNumber.slice(-4)}` : 'Alternative Escrow'
       );
       
-      showToast('Order registered successfully on blockchain!', 'success');
-      clearCart();
-      router.push(`/orders/${order.id}`);
-    } catch {
+      if (order) {
+        showToast('Order registered successfully!', 'success');
+        clearCart();
+        router.push(`/orders/${order.id}`);
+      } else {
+        showToast('Transaction failed. Try again.', 'error');
+      }
+    } catch (err: any) {
+      console.error(err);
       showToast('Transaction failed. Try again.', 'error');
     }
   };

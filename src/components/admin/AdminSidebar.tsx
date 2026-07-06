@@ -27,6 +27,7 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/products', icon: ShoppingBag },
+  { name: 'Categories', href: '/admin/categories', icon: ClipboardList },
   { name: 'Orders', href: '/admin/orders', icon: ClipboardList },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Repairs', href: '/admin/repairs', icon: Wrench },

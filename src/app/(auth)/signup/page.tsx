@@ -16,23 +16,27 @@ export default function SignupPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() === '' || email.trim() === '') return;
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      showToast('Please fill out all fields.', 'error');
+      return;
+    }
 
-    const success = await signup(name, email);
+    const success = await signup(name, email, password);
     if (success) {
-      showToast('Registration OTP sent. Please inspect your inbox.', 'success');
-      router.push(`/verify-otp?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
+      showToast('Registration successful! Welcome.', 'success');
+      router.push('/');
     } else {
-      showToast('Registration failed. Email might already have active credentials.', 'error');
+      showToast('Registration failed. Email might already be registered.', 'error');
     }
   };
 
   return (
     <div className="max-w-md mx-auto px-4 py-20 text-left">
-      <div className="ultra-glass rounded-2xl border border-white/5 p-8 space-y-6">
+      <div className="bg-black rounded-2xl border border-zinc-900 p-8 space-y-6">
         <div className="text-center space-y-2">
           <span className="font-display font-black text-lg tracking-wider text-white">
             BUJJI <span className="text-primary-gold">CELLULARS</span>
@@ -42,10 +46,11 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label="Full Name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Teja M" />
-          <Input label="Corporate Email Address" required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" />
+          <Input label="Email Address" required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" />
+          <Input label="Password" required type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
 
-          <button type="submit" className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-xs uppercase font-bold tracking-wider">
-            <span>Submit Registration</span>
+          <button type="submit" className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-xs uppercase font-bold tracking-wider cursor-pointer">
+            <span>Register Credentials</span>
             <ArrowRight size={14} />
           </button>
         </form>

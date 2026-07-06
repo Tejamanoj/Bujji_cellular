@@ -5,11 +5,20 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Bell, Search, User, ShieldAlert, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
+import { useAdminStore } from '@/store/adminStore';
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { syncData } = useAdminStore();
+
+  React.useEffect(() => {
+    const unsub = syncData();
+    return () => unsub();
+  }, []);
+
   return (
     <div className="min-h-screen site-bg text-zinc-100 flex font-sans antialiased">
       {/* Sidebar Navigation */}

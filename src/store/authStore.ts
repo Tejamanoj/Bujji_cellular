@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { User } from '@/types';
+import { customerSignIn, customerSignUp, adminSignIn, adminSignOut } from '@/backend/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '@/backend/firebase';
 
 interface AuthState {
   user: User | null;
@@ -7,8 +10,9 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, name?: string) => Promise<boolean>;
-  signup: (name: string, email: string) => Promise<boolean>;
+  isAdmin: boolean;
+  login: (email: string, password?: string) => Promise<boolean>;
+  signup: (name: string, email: string, password?: string) => Promise<boolean>;
   logout: () => void;
   updateProfileImage: (url: string) => void;
   updateLoyaltyPoints: (points: number) => void;
@@ -16,70 +20,80 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: {
-    id: 'user_1',
-    name: 'Teja M',
-    email: 'tejam@example.com',
-    profileImage: '/images/avatar-placeholder.svg',
-    loyaltyPoints: 1250,
-  },
-  token: 'mock_jwt_token_bujji_cellulars',
-  isAuthenticated: true,
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  token: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
+  isAdmin: false,
 
-  login: async (email, name) => {
+  login: async (email, password = 'DefaultPassword123') => {
     set({ isLoading: true, error: null });
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    try {
-      const mockUser: User = {
-        id: 'user_1',
-        name: name || 'Teja M',
-        email: email,
-        profileImage: '/images/avatar-placeholder.svg',
-        loyaltyPoints: 1250,
-      };
+    
+    // Check if it's admin or standard user
+    if (email === 'admin@bujjicellulars.com' || email === 'admin@bujjicellular.com') {
+      const res = await adminSignIn(email, password);
+      if (res.success) {
+        const appUser: User = {
+          id: res.user!.uid,
+          name: 'Administrator',
+          email: email,
+          profileImage: '/images/avatar-placeholder.svg',
+          loyaltyPoints: 0,
+        };
+        set({
+          user: appUser,
+          token: 'bujji_admin_token',
+          isAuthenticated: true,
+          isLoading: false,
+          isAdmin: true
+        });
+        return true;
+      } else {
+        set({ error: res.error || 'Admin login failed', isLoading: false });
+        return false;
+      }
+    }
+
+    // Standard User login
+    const res = await customerSignIn(email, password);
+    if (res.success && res.user) {
       set({
-        user: mockUser,
-        token: 'mock_jwt_token_bujji_cellulars',
+        user: res.user,
+        token: 'bujji_user_token',
         isAuthenticated: true,
         isLoading: false,
+        isAdmin: false
       });
       return true;
-    } catch {
-      set({ error: 'Invalid credentials', isLoading: false });
+    } else {
+      set({ error: res.error || 'Invalid email or password.', isLoading: false });
       return false;
     }
   },
 
-  signup: async (name, email) => {
+  signup: async (name, email, password = 'DefaultPassword123') => {
     set({ isLoading: true, error: null });
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    try {
-      const mockUser: User = {
-        id: 'user_' + Math.random().toString(36).substr(2, 9),
-        name,
-        email,
-        profileImage: '/images/avatar-placeholder.svg',
-        loyaltyPoints: 100, // Sign up bonus
-      };
+    const res = await customerSignUp(name, email, password);
+    if (res.success && res.user) {
       set({
-        user: mockUser,
-        token: 'mock_jwt_token_bujji_cellulars',
+        user: res.user,
+        token: 'bujji_user_token',
         isAuthenticated: true,
         isLoading: false,
+        isAdmin: false
       });
       return true;
-    } catch {
-      set({ error: 'Signup failed. Please try again.', isLoading: false });
+    } else {
+      set({ error: res.error || 'Signup failed', isLoading: false });
       return false;
     }
   },
 
-  logout: () => {
-    set({ user: null, token: null, isAuthenticated: false, error: null });
+  logout: async () => {
+    await adminSignOut();
+    set({ user: null, token: null, isAuthenticated: false, error: null, isAdmin: false });
   },
 
   updateProfileImage: (url) => {
@@ -96,9 +110,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    set({ isLoading: false });
-    return true;
+    try {
+      await sendPasswordResetEmail(auth, email);
+      set({ isLoading: false });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+      return false;
+    }
   },
 
   clearError: () => set({ error: null }),

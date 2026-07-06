@@ -5,15 +5,7 @@ import { useProductStore } from '@/store/productStore';
 import { Rating } from '../common/Rating';
 
 export const FilterSidebar: React.FC = () => {
-  const { filters, setFilters, resetFilters } = useProductStore();
-
-  const categories = [
-    { name: 'All Products', value: 'all' },
-    { name: 'Smartphones', value: 'smartphones' },
-    { name: 'AeroBuds & Audio', value: 'audio' },
-    { name: 'Charging & Power', value: 'power-chargers' },
-    { name: 'Cyber Protection', value: 'protection' },
-  ];
+  const { filters, setFilters, resetFilters, categories } = useProductStore();
 
   const brands = ['Bujji', 'Apple', 'Samsung', 'Nothing'];
 
@@ -27,32 +19,42 @@ export const FilterSidebar: React.FC = () => {
   };
 
   return (
-    <div className="ultra-glass p-5 rounded-2xl space-y-6 text-left border border-white/5">
-      <div className="flex justify-between items-center pb-4 border-b border-white/5">
+    <div className="ultra-glass p-5 rounded-2xl space-y-6 text-left border border-white/5 bg-black">
+      <div className="flex justify-between items-center pb-4 border-b border-zinc-900">
         <h3 className="font-display font-black text-sm uppercase tracking-wider text-white">Filters</h3>
         <button
           onClick={resetFilters}
-          className="text-[10px] text-primary-gold hover:text-white uppercase tracking-wider transition-colors font-bold"
+          className="text-[10px] text-primary-gold hover:text-white uppercase tracking-wider transition-colors font-bold cursor-pointer"
         >
           Reset All
         </button>
       </div>
 
-      {/* Category List */}
+      {/* Dynamic Categories List */}
       <div className="space-y-2">
         <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Category</h4>
         <div className="flex flex-col space-y-1">
+          <button
+            onClick={() => setFilters({ category: 'all' })}
+            className={`text-left text-xs py-1 px-2 rounded transition-colors cursor-pointer ${
+              filters.category === 'all'
+                ? 'bg-primary-gold/15 text-primary-gold font-semibold'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
+            }`}
+          >
+            All Products
+          </button>
           {categories.map((cat) => (
             <button
-              key={cat.value}
-              onClick={() => setFilters({ category: cat.value })}
-              className={`text-left text-xs py-1 px-2 rounded transition-colors ${
-                filters.category === cat.value
+              key={cat.id}
+              onClick={() => setFilters({ category: cat.slug })}
+              className={`text-left text-xs py-1 px-2 rounded transition-colors cursor-pointer ${
+                filters.category === cat.slug
                   ? 'bg-primary-gold/15 text-primary-gold font-semibold'
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
               }`}
             >
-              {cat.name}
+              {cat.image} {cat.name}
             </button>
           ))}
         </div>
@@ -105,7 +107,7 @@ export const FilterSidebar: React.FC = () => {
             <button
               key={stars}
               onClick={() => setFilters({ rating: stars })}
-              className={`flex items-center space-x-2 py-1 px-2 rounded text-left transition-colors ${
+              className={`flex items-center space-x-2 py-1 px-2 rounded text-left transition-colors cursor-pointer ${
                 filters.rating === stars
                   ? 'bg-primary-gold/15 text-primary-gold'
                   : 'hover:bg-zinc-900/40 text-zinc-400'
@@ -120,4 +122,5 @@ export const FilterSidebar: React.FC = () => {
     </div>
   );
 };
+
 export default FilterSidebar;

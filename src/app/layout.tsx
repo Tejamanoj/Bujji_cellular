@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { ToastContainer } from '@/components/common/Toast';
 import CartDrawer from '@/components/cart/CartDrawer';
+import IntroScreen from '@/components/layout/IntroScreen';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,9 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} site-bg text-foreground antialiased min-h-screen flex flex-col relative`}
+        suppressHydrationWarning
       >
         {/* Dot grid overlay */}
         <div className="fixed inset-0 pointer-events-none z-0 opacity-40">
@@ -47,6 +49,7 @@ export default function RootLayout({
         <Footer />
         
         {/* Overlays & Alerts */}
+        <IntroScreen />
         <CartDrawer />
         <ToastContainer />
       </body>

@@ -96,7 +96,7 @@ export default function JobsPage() {
       <div className="border-b border-white/5 pb-8 mb-10">
         <p className="text-[10px] text-primary-gold font-bold tracking-[0.25em] uppercase mb-2">Join Our Team</p>
         <h1 className="font-display font-black text-4xl sm:text-5xl uppercase tracking-tight text-white">Careers</h1>
-        <p className="text-sm text-zinc-500 mt-2">Craft the engineering & design behind the world's most luxurious mobile hardware.</p>
+        <p className="text-sm text-zinc-500 mt-2">Craft the engineering & design behind the world&apos;s most luxurious mobile hardware.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -205,7 +205,7 @@ export default function JobsPage() {
               <div>
                 <p className="text-xs font-bold text-zinc-300 uppercase tracking-wider">Select a Position</p>
                 <p className="text-[10px] text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                  Click 'Apply' on any job posting to unlock the candidacy submission terminal.
+                  Click &apos;Apply&apos; on any job posting to unlock the candidacy submission terminal.
                 </p>
               </div>
             </div>

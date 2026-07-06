@@ -18,7 +18,12 @@ import {
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
-  const { stats, orders, products, analytics, updateOrderStatus } = useAdminStore();
+  const { stats, orders, products, analytics, syncData } = useAdminStore();
+
+  React.useEffect(() => {
+    const unsub = syncData();
+    return () => unsub();
+  }, []);
 
   // Get last 5 orders
   const recentOrders = orders.slice(0, 5);

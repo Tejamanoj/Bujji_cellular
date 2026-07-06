@@ -131,11 +131,13 @@ export const Footer: React.FC = () => {
                 <input
                   type="email"
                   placeholder="your@email.com"
+                  suppressHydrationWarning
                   className="w-full bg-white/4 border border-white/8 text-xs px-4 py-2.5 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-primary-gold/50 transition-colors"
                 />
                 <button
                   type="submit"
-                  className="btn-gold text-xs py-2.5 rounded-xl font-bold w-full"
+                  suppressHydrationWarning
+                  className="btn-gold text-xs py-2.5 rounded-xl font-bold w-full cursor-pointer"
                 >
                   Subscribe
                 </button>

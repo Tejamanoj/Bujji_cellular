@@ -8,6 +8,7 @@ import { useProductStore } from '@/store/productStore';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useUIStore } from '@/store/uiStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/common/Button';
 import { Rating } from '@/components/common/Rating';
 import { Loader } from '@/components/common/Loader';
@@ -20,6 +21,7 @@ export default function ProductDetailPage() {
   const { addItem } = useCartStore();
   const { wishlist, toggleWishlist } = useUserStore();
   const { showToast } = useUIStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   const id = params.id as string;
   const product = products.find((p) => p.id === id);
@@ -75,6 +77,31 @@ export default function ProductDetailPage() {
 
   const isWished = wishlist.includes(product.id);
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
+
+  // Intelligently find compatible accessories
+  const compatibleAccessories = products.filter((p) => {
+    if (p.id === product.id) return false;
+    const isAccessory = p.category === 'accessories' || p.category === 'power-chargers' || p.category === 'audio';
+    if (!isAccessory) return false;
+    
+    const phoneBrand = product.brand.toLowerCase();
+    const itemTitle = p.name.toLowerCase();
+    const itemBrand = p.brand.toLowerCase();
+    
+    if (phoneBrand === 'apple') {
+      return itemTitle.includes('apple') || itemTitle.includes('iphone') || itemTitle.includes('magsafe') || itemTitle.includes('airpod') || itemBrand === 'apple';
+    }
+    if (phoneBrand === 'samsung') {
+      return itemTitle.includes('samsung') || itemTitle.includes('galaxy') || itemBrand === 'samsung';
+    }
+    return p.brand.toLowerCase() === phoneBrand;
+  }).slice(0, 4);
+
+  // Frequently Bought Together Bundle
+  const frequentlyBoughtTogether = compatibleAccessories.slice(0, 2);
+  const bundleTotal = product.price + frequentlyBoughtTogether.reduce((sum, item) => sum + item.price, 0);
+  const bundleSavings = Math.floor(bundleTotal * 0.1); // 10% bundle savings
+  const bundlePrice = bundleTotal - bundleSavings;
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -226,8 +253,13 @@ export default function ProductDetailPage() {
           {/* Action CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button
-              className="btn-gold flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold uppercase tracking-wider"
+              className="btn-gold flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold uppercase tracking-wider cursor-pointer"
               onClick={() => {
+                if (!isAuthenticated) {
+                  showToast('Please log in to continue.', 'error');
+                  router.push('/login');
+                  return;
+                }
                 addItem(product, quantity, selectedColor, selectedStorage);
                 showToast(`Acquired ${quantity}x ${product.name}!`, 'success');
               }}
@@ -236,10 +268,17 @@ export default function ProductDetailPage() {
               Acquire & Add to Cart
             </button>
             <button
-              className="btn-outline flex items-center justify-center gap-2 px-6 py-4 text-sm font-bold uppercase tracking-wider shrink-0"
+              className="btn-outline flex items-center justify-center gap-2 px-6 py-4 text-sm font-bold uppercase tracking-wider shrink-0 cursor-pointer"
               onClick={() => {
-                toggleWishlist(product.id);
-                showToast(isWished ? 'Removed from wishlist' : 'Saved to wishlist', 'info');
+                if (!isAuthenticated) {
+                  showToast('Please log in to continue.', 'error');
+                  router.push('/login');
+                  return;
+                }
+                if (user?.id) {
+                  toggleWishlist(user.id, product.id);
+                  showToast(isWished ? 'Removed from wishlist' : 'Saved to wishlist', 'info');
+                }
               }}
             >
               <Heart size={16} className={isWished ? 'fill-red-500 text-red-500' : ''} />
@@ -388,9 +427,109 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
+      {/* FREQUENTLY BOUGHT TOGETHER */}
+      {frequentlyBoughtTogether.length > 0 && (
+        <div className="mt-24 border-t border-white/5 pt-12 text-left">
+          <p className="text-[10px] text-primary-gold uppercase tracking-[0.3em] font-mono font-bold mb-2">Exclusive Offer Bundle</p>
+          <h2 className="font-display font-black text-2xl text-white uppercase tracking-tight mb-8">Frequently Bought Together</h2>
+          
+          <div className="ultra-glass border border-white/5 rounded-3xl p-6 md:p-8 flex flex-col lg:flex-row items-center gap-8 justify-between">
+            <div className="flex flex-wrap items-center gap-4 text-white font-black text-lg">
+              {/* Main Product */}
+              <div className="flex items-center gap-3 bg-zinc-900/60 p-3 rounded-2xl border border-white/5">
+                <img src={product.images[0]} alt={product.name} className="w-12 h-12 object-contain" />
+                <div>
+                  <h4 className="text-xs font-bold text-zinc-300 truncate w-32">{product.name}</h4>
+                  <p className="text-xs text-primary-gold font-bold">₹{product.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+
+              <span className="text-zinc-650 text-xl font-mono">+</span>
+
+              {/* Accessories loop */}
+              {frequentlyBoughtTogether.map((item, i) => (
+                <React.Fragment key={item.id}>
+                  <div className="flex items-center gap-3 bg-zinc-900/60 p-3 rounded-2xl border border-white/5">
+                    <img src={item.images[0]} alt={item.name} className="w-12 h-12 object-contain" />
+                    <div>
+                      <h4 className="text-xs font-bold text-zinc-300 truncate w-32">{item.name}</h4>
+                      <p className="text-xs text-primary-gold font-bold">₹{item.price.toLocaleString('en-IN')}</p>
+                    </div>
+                  </div>
+                  {i < frequentlyBoughtTogether.length - 1 && <span className="text-zinc-650 text-xl font-mono">+</span>}
+                </React.Fragment>
+              ))}
+            </div>
+
+            <div className="text-right lg:border-l lg:border-white/5 lg:pl-8 space-y-3 w-full lg:w-auto">
+              <div>
+                <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-mono">Bundle Total Value</p>
+                <div className="flex items-baseline justify-end gap-2">
+                  <span className="text-2xl font-black text-primary-gold">₹{bundlePrice.toLocaleString('en-IN')}</span>
+                  <span className="text-xs text-zinc-550 line-through">₹{bundleTotal.toLocaleString('en-IN')}</span>
+                </div>
+                <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mt-1">You Save 10% (₹{bundleSavings.toLocaleString('en-IN')})</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    showToast('Please log in to continue.', 'error');
+                    router.push('/login');
+                    return;
+                  }
+                  addItem(product, 1, selectedColor, selectedStorage);
+                  frequentlyBoughtTogether.forEach((item) => {
+                    addItem(item, 1, item.colors?.[0] || 'Standard', item.storage?.[0] || 'Standard');
+                  });
+                  showToast('Bundle added to your cart!', 'success');
+                }}
+                className="btn-gold w-full lg:w-auto px-6 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Acquire Complete Bundle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RECOMMENDED COMPATIBLE ACCESSORIES */}
+      {compatibleAccessories.length > 0 && (
+        <div className="mt-24 text-left">
+          <p className="text-[10px] text-primary-gold uppercase tracking-[0.3em] font-mono font-bold mb-2">Engineered Compatibility</p>
+          <h2 className="font-display font-black text-2xl text-white uppercase tracking-tight mb-8">Recommended Accessories</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {compatibleAccessories.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => router.push(`/products/${p.id}`)}
+                className="group ultra-glass rounded-2xl border border-white/5 hover:border-primary-gold/20 text-left cursor-pointer overflow-hidden transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-full h-36 bg-zinc-900 overflow-hidden flex items-center justify-center p-4">
+                    <img src={p.images[0]} alt={p.name} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                  <div className="p-4 space-y-1">
+                    <span className="text-[9px] text-primary-gold font-mono uppercase tracking-widest">{p.brand}</span>
+                    <h3 className="font-display font-bold text-xs text-zinc-200 group-hover:text-primary-gold truncate">
+                      {p.name}
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-4 pt-0">
+                  <p className="text-xs text-primary-gold font-bold">₹{p.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Related Products Carousel */}
       {relatedProducts.length > 0 && (
-        <div className="mt-24">
+        <div className="mt-24 text-left">
+          <p className="text-[10px] text-primary-gold uppercase tracking-[0.3em] font-mono font-bold mb-2">Catalog Suggestions</p>
           <h2 className="font-display font-black text-2xl text-white uppercase tracking-tight mb-8">Related Models</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedProducts.map((p) => (

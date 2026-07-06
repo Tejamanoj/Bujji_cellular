@@ -13,9 +13,6 @@ import { useUserStore } from '@/store/userStore';
 export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-
-  if (pathname?.startsWith('/admin')) return null;
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +28,8 @@ export const Navbar: React.FC = () => {
   const { wishlist } = useUserStore();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { openCart } = useUIStore();
+
+  if (pathname?.startsWith('/admin')) return null;
 
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -95,6 +94,7 @@ export const Navbar: React.FC = () => {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              suppressHydrationWarning
               className="w-44 bg-white/4 border border-white/8 px-4 py-2 pl-9 rounded-full text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-primary-gold/50 focus:w-56 focus:bg-white/6 transition-all duration-300"
             />
             <Search className="absolute left-3 text-zinc-600" size={13} />

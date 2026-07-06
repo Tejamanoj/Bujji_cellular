@@ -8,12 +8,14 @@ import { useCartStore } from '@/store/cartStore';
 import { useUIStore } from '@/store/uiStore';
 import { Product } from '@/types';
 
+import { useRouter } from 'next/navigation';
+
 interface FeaturedShowcaseProps {
   products: Product[];
 }
 
 // 3D Tilt Card wrapper
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
+function TiltCard({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useSpring(useTransform(y, [-100, 100], [8, -8]), { stiffness: 400, damping: 30 });
@@ -34,6 +36,7 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
       style={{ rotateX, rotateY, transformPerspective: 1000 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
       className={className}
     >
       {children}
@@ -47,6 +50,7 @@ const fadeUp = {
 };
 
 export function FeaturedShowcase({ products }: FeaturedShowcaseProps) {
+  const router = useRouter();
   const { addItem } = useCartStore();
   const { showToast } = useUIStore();
 
@@ -89,7 +93,10 @@ export function FeaturedShowcase({ products }: FeaturedShowcaseProps) {
             variants={fadeUp}
             className="lg:col-span-2"
           >
-            <TiltCard className="group relative rounded-3xl overflow-hidden ultra-glass h-[420px] cursor-pointer">
+            <TiltCard 
+              className="group relative rounded-3xl overflow-hidden ultra-glass h-[420px] cursor-pointer"
+              onClick={() => router.push(`/products/${hero.id}`)}
+            >
               {/* Background Image */}
               <img
                 src={hero.images[0]}
@@ -113,23 +120,22 @@ export function FeaturedShowcase({ products }: FeaturedShowcaseProps) {
                     <span className="text-sm text-zinc-500 line-through">₹{hero.originalPrice.toLocaleString('en-IN')}</span>
                   )}
                   <div className="ml-auto flex gap-3">
-                    <Link href={`/products/${hero.id}`}>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-5 py-2.5 bg-white/10 backdrop-blur text-white text-xs font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all"
-                      >
-                        Explore
-                      </motion.button>
-                    </Link>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => { addItem(hero, 1, hero.colors[0], hero.storage[0]); showToast(`${hero.name} added to cart!`, 'success'); }}
-                      className="px-5 py-2.5 bg-primary-gold text-black text-xs font-black rounded-xl hover:bg-dark-gold transition-all shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+                    <button
+                      className="px-5 py-2.5 bg-white/10 backdrop-blur text-white text-xs font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); router.push(`/products/${hero.id}`); }}
+                    >
+                      Explore
+                    </button>
+                    <button
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        addItem(hero, 1, hero.colors[0], hero.storage[0]); 
+                        showToast(`${hero.name} added to cart!`, 'success'); 
+                      }}
+                      className="px-5 py-2.5 bg-primary-gold text-black text-xs font-black rounded-xl hover:bg-dark-gold transition-all shadow-[0_0_20px_rgba(212,175,55,0.5)] cursor-pointer"
                     >
                       Acquire
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -146,7 +152,10 @@ export function FeaturedShowcase({ products }: FeaturedShowcaseProps) {
             viewport={{ once: true, amount: 0.2 }}
             variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: idx * 0.1, ease: 'easeOut' as const } } }}
           >
-            <TiltCard className="group relative rounded-3xl overflow-hidden ultra-glass h-[420px] cursor-pointer flex flex-col">
+            <TiltCard 
+              className="group relative rounded-3xl overflow-hidden ultra-glass h-[420px] cursor-pointer flex flex-col"
+              onClick={() => router.push(`/products/${product.id}`)}
+            >
               <div className="relative h-48 overflow-hidden flex-shrink-0">
                 <img
                   src={product.images[0]}
@@ -174,14 +183,16 @@ export function FeaturedShowcase({ products }: FeaturedShowcaseProps) {
                       <p className="text-[10px] text-zinc-500 line-through">₹{product.originalPrice.toLocaleString('en-IN')}</p>
                     )}
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { addItem(product, 1, product.colors[0], product.storage[0]); showToast(`${product.name} added!`, 'success'); }}
-                    className="w-10 h-10 flex items-center justify-center rounded-2xl bg-primary-gold/10 border border-primary-gold/30 hover:bg-primary-gold hover:text-black text-primary-gold transition-all"
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      addItem(product, 1, product.colors[0], product.storage[0]); 
+                      showToast(`${product.name} added!`, 'success'); 
+                    }}
+                    className="w-10 h-10 flex items-center justify-center rounded-2xl bg-primary-gold/10 border border-primary-gold/30 hover:bg-primary-gold hover:text-black text-primary-gold transition-all cursor-pointer"
                   >
                     <ShoppingCart size={16} />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
             </TiltCard>

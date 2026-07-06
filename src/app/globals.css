@@ -43,7 +43,7 @@
 
 /* ─── RESET / BASE ─────────────────── */
 :root {
-  --background: #080808;
+  --background: #000000;
   --foreground: #F0F0F0;
 }
 
@@ -56,7 +56,7 @@ body {
 
 /* ─── SCROLLBAR ─────────────────────── */
 ::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-track { background: #000000; }
 ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
 
@@ -175,11 +175,8 @@ body {
   border-color: rgba(212,175,55,0.2);
 }
 
-/* ─── BACKGROUND ────────────────────── */
 .site-bg {
-  background-color: #080808;
-  /* very subtle noise grain */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-color: #000000;
 }
 
 /* ambient glow spots */
