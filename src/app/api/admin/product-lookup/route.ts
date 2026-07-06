@@ -155,40 +155,38 @@ async function lookupWithGemini(query: string, apiKey: string) {
 
   let lastError: any;
 
-  const prompt = `You are a product database assistant for an Indian mobile phone e-commerce store called "Bujji Cellulars".
+  const prompt = `You are an expert product database assistant for an e-commerce store called "Bujji Cellulars".
 
 Search the web and find accurate, detailed specifications for this product: "${query}"
 
 Return ONLY a valid JSON object (no markdown, no explanation) with this exact structure:
 {
   "name": "Full official product name",
-  "brand": "Brand name (e.g. Apple, Samsung, Xiaomi, etc.)",
-  "category": "One of: smartphones, audio, wearables, accessories",
+  "brand": "Brand name (e.g. LG, Sony, Dell, Apple, IFB, Luminous, etc.)",
+  "category": "One of: mobile-phones, tv, fridge, washing-machines, inverters, laptops, phone-accessories, audio, wearables",
   "suggestedPriceINR": <number - current Indian market retail price in rupees>,
-  "description": "2-3 sentence compelling product description for a luxury store",
-  "imageUrl": "",
+  "description": "2-3 sentence compelling product description for a premium store",
+  "imageUrl": "Direct high-quality public URL of the official product render or transparent studio shot",
   "suggestedColors": ["Color 1", "Color 2", "...all official colors available"],
   "priceConfidence": "High",
   "sourceNote": "Source website name",
   "specs": {
-    "Processor": "...",
-    "Display": "...",
-    "Camera": "...",
-    "Battery": "...",
-    "RAM": "...",
-    "Storage": "...",
-    "OS": "...",
-    "5G": "Yes/No",
-    "Warranty": "1 Year Manufacturer Warranty"
+    // Dynamic keys depending on product type. Do NOT use mobile keys like "5G" or "Camera" for non-phones.
+    // Example for TV: "Screen Size", "Resolution", "Display Tech", "Refresh Rate", "Smart TV OS", "Audio Output"
+    // Example for Fridge: "Capacity", "Defrosting Type", "Energy Rating", "Compressor Type", "Number of Doors"
+    // Example for Washing Machine: "Load Capacity", "Function Type", "Energy Rating", "Maximum Spin Speed", "Tub Material"
+    // Example for Laptops: "Processor", "RAM", "Storage", "Graphics Card", "Screen Size", "Operating System"
+    // Example for Inverters: "VA Rating", "Output Power", "Battery Support", "Input Voltage", "Efficiency"
+    // Example for Phones: "Processor", "Display", "Camera", "Battery", "RAM", "Storage", "OS", "5G"
   }
 }
 
 Important rules:
-- suggestedPriceINR must be the actual current Indian market price (search for it)
-- suggestedColors must list all officially available color variants
-- specs must be accurate and complete from official sources
-- imageUrl MUST be a direct, high-quality, high-resolution public URL of the official product render or transparent studio shot (e.g., from GSMArena, official brand galleries, or reputable retailers). Do NOT use lifestyle backgrounds or placeholder links.
-- Return ONLY the JSON, nothing else`;
+- Adjust "specs" key-value pairs dynamically to fit the category. Do NOT return "N/A", "empty", or placeholder values. If a spec is not found, omit it completely.
+- suggestedPriceINR must be the actual current Indian market price (search for it).
+- suggestedColors must list all officially available colors.
+- imageUrl MUST be a direct, high-quality, high-resolution public URL of the official product render or transparent studio shot. Do NOT use lifestyle backgrounds or placeholder links.
+- Return ONLY the JSON, nothing else.`;
 
   for (const modelName of MODELS_TO_TRY) {
     try {
