@@ -14,13 +14,15 @@ function SearchResultsContent() {
   const router = useRouter();
   const query = searchParams.get('q') || '';
 
-  const { products, setFilters, getFilteredProducts } = useProductStore();
+  const { products, setFilters, getFilteredProducts, fetchProducts } = useProductStore();
   const { addItem } = useCartStore();
   const { showToast } = useUIStore();
 
   useEffect(() => {
-    setFilters({ search: query });
-  }, [query]);
+    fetchProducts().then(() => {
+      setFilters({ search: query });
+    });
+  }, [query, fetchProducts, setFilters]);
 
   const results = getFilteredProducts();
 
