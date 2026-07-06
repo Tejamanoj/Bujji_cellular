@@ -149,7 +149,8 @@ export default function AdminEditProductPage() {
       if (Array.isArray(r.suggestedColors)) {
         setSuggestedColors(r.suggestedColors);
         const hexes = r.suggestedColors.map((col: string) => guessHexFromName(col));
-        if (hexes.length > 0) setColors(hexes);
+        const uniqueHexes = Array.from(new Set(hexes));
+        if (uniqueHexes.length > 0) setColors(uniqueHexes);
       }
       setLookupMeta({ confidence: r.priceConfidence, note: r.sourceNote });
       showToast(`Autofilled: ${r.name || lookupQuery}`, 'success');
