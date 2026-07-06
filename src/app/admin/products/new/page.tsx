@@ -104,7 +104,8 @@ export default function AdminNewProductPage() {
         setSuggestedColors(r.suggestedColors);
         // Automatically add first few colors if available
         const mappedHexes = r.suggestedColors.map((col: string) => guessHexFromName(col));
-        if (mappedHexes.length > 0) setColors(mappedHexes);
+        const uniqueHexes = Array.from(new Set(mappedHexes));
+        if (uniqueHexes.length > 0) setColors(uniqueHexes);
       }
       setLookupMeta({ confidence: r.priceConfidence, note: r.sourceNote });
       showToast(`Autofilled specifications for: ${r.name || lookupQuery}!`, 'success');
