@@ -187,7 +187,7 @@ Important rules:
 - suggestedPriceINR must be the actual current Indian market price (search for it)
 - suggestedColors must list all officially available color variants
 - specs must be accurate and complete from official sources
-- imageUrl should be empty string "" (we will handle images separately)
+- imageUrl MUST be a direct, high-quality, high-resolution public URL of the official product render or transparent studio shot (e.g., from GSMArena, official brand galleries, or reputable retailers). Do NOT use lifestyle backgrounds or placeholder links.
 - Return ONLY the JSON, nothing else`;
 
   for (const modelName of MODELS_TO_TRY) {
@@ -208,7 +208,8 @@ Important rules:
 
       const parsed = JSON.parse(jsonMatch[0]);
 
-      if (!parsed.imageUrl) {
+      // Pick a good fallback image based on category/brand if search fails to provide one
+      if (!parsed.imageUrl || parsed.imageUrl.includes('placeholder')) {
         parsed.imageUrl = getImageForProduct(parsed.brand || '', parsed.category || 'smartphones');
       }
 
