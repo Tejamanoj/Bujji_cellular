@@ -15,11 +15,15 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const mockCategories = [
-  { name: 'Smartphones', slug: 'smartphones', description: 'Premium flagship smartphones', enabled: true, order: 1, featured: true, image: '📱' },
-  { name: 'Audio', slug: 'audio', description: 'Elite audiophile audio gear', enabled: true, order: 2, featured: true, image: '🎧' },
-  { name: 'Wearables', slug: 'wearables', description: 'Handcrafted luxury smartwatches', enabled: true, order: 3, featured: true, image: '⌚' },
-  { name: 'Power & Chargers', slug: 'power-chargers', description: 'Fast MagSafe charging devices', enabled: true, order: 4, featured: true, image: '⚡' },
-  { name: 'Cases & Covers', slug: 'cases-covers', description: 'Military grade protective cases', enabled: true, order: 5, featured: true, image: '🛡️' }
+  { name: 'Mobile Phones', slug: 'mobile-phones', description: 'Flagship & high-performance mobile phones', enabled: true, order: 1, featured: true, image: '📱' },
+  { name: 'TV', slug: 'tv', description: 'Ultra HD & Smart TVs', enabled: true, order: 2, featured: true, image: '📺' },
+  { name: 'Fridge', slug: 'fridge', description: 'Premium smart refrigerators', enabled: true, order: 3, featured: true, image: '❄️' },
+  { name: 'Washing Machines', slug: 'washing-machines', description: 'Smart wash & dry washing machines', enabled: true, order: 4, featured: true, image: '🧺' },
+  { name: 'Inverters', slug: 'inverters', description: 'Heavy-duty backup battery inverters', enabled: true, order: 5, featured: true, image: '🔋' },
+  { name: 'Laptops', slug: 'laptops', description: 'Ultra-thin notebooks and gaming laptops', enabled: true, order: 6, featured: true, image: '💻' },
+  { name: 'Phone Accessories', slug: 'phone-accessories', description: 'Covers, chargers, cases, and cords', enabled: true, order: 7, featured: true, image: '🔌' },
+  { name: 'Audio', slug: 'audio', description: 'Elite audiophile audio gear', enabled: true, order: 8, featured: true, image: '🎧' },
+  { name: 'Wearables', slug: 'wearables', description: 'Handcrafted luxury smartwatches', enabled: true, order: 9, featured: true, image: '⌚' }
 ];
 
 async function seedCategories() {
