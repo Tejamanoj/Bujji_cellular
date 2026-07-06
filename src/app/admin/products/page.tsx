@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useAdminStore } from '@/store/adminStore';
 import { DataTable, Column } from '@/components/admin/DataTable';
 import { Product } from '@/types';
-import { Edit2, Trash2, Plus, AlertCircle, ShoppingBag, Eye } from 'lucide-react';
+import { Edit2, Trash2, Plus, AlertCircle, ShoppingBag, Eye, Pencil } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminProductsPage() {
@@ -107,6 +107,13 @@ export default function AdminProductsPage() {
             title="View Product Page"
           >
             <Eye className="w-4 h-4" />
+          </Link>
+          <Link
+            href={`/admin/products/${product.id}/edit`}
+            className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-colors"
+            title="Edit Product"
+          >
+            <Pencil className="w-4 h-4" />
           </Link>
           <button
             onClick={() => {

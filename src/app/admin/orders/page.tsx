@@ -1,10 +1,11 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useAdminStore } from '@/store/adminStore';
 import { DataTable, Column } from '@/components/admin/DataTable';
 import { Order } from '@/types';
-import { Eye, ChevronRight, ChevronDown, CheckCircle, Package, Truck, XSquare, Clock } from 'lucide-react';
+import { Eye, ChevronRight, ChevronDown, CheckCircle, Package, Truck, XSquare, Clock, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus } = useAdminStore();
@@ -123,6 +124,31 @@ export default function AdminOrdersPage() {
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
+      ),
+    },
+    {
+      header: 'Actions',
+      accessor: (order) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => toggleExpandOrder(order.id)}
+            className="p-2 rounded-xl bg-white/3 hover:bg-white/6 text-zinc-400 hover:text-zinc-200 border border-white/6 transition-colors"
+            title="Quick Expand"
+          >
+            {expandedOrderId === order.id ? (
+              <ChevronDown className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+          <Link
+            href={`/admin/orders/${order.id}`}
+            className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-colors"
+            title="Full Order Detail"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </Link>
+        </div>
       ),
     },
   ];
