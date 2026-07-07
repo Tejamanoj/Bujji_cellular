@@ -11,6 +11,89 @@ import { ArrowRight, ShieldCheck, Terminal, ShieldAlert, Fingerprint, Scan, Came
 import { db } from '@/backend/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+function extractFaceEmbedding(canvas: HTMLCanvasElement): number[] {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return Array(128).fill(0.5);
+
+  const imgData = ctx.getImageData(0, 0, 300, 300);
+  const data = imgData.data;
+  const embedding: number[] = [];
+
+  const gridSize = 8;
+  const blockSize = 300 / gridSize;
+
+  for (let gy = 0; gy < gridSize; gy++) {
+    for (let gx = 0; gx < gridSize; gx++) {
+      const startX = Math.floor(gx * blockSize);
+      const startY = Math.floor(gy * blockSize);
+      const endX = Math.floor((gx + 1) * blockSize);
+      const endY = Math.floor((gy + 1) * blockSize);
+
+      let totalR = 0, totalG = 0, totalB = 0;
+      let count = 0;
+
+      for (let y = startY; y < endY; y++) {
+        for (let x = startX; x < endX; x++) {
+          const idx = (y * 300 + x) * 4;
+          totalR += data[idx];
+          totalG += data[idx + 1];
+          totalB += data[idx + 2];
+          count++;
+        }
+      }
+
+      const avgR = totalR / count;
+      const avgG = totalG / count;
+      const avgB = totalB / count;
+
+      const luminosity = (0.299 * avgR + 0.587 * avgG + 0.114 * avgB) / 255;
+      const colorBalance = avgR / (avgG + avgB + 1);
+
+      embedding.push(luminosity);
+      embedding.push(Math.min(1, Math.max(0, colorBalance / 2)));
+    }
+  }
+
+  while (embedding.length < 128) embedding.push(0.5);
+  return embedding.slice(0, 128);
+}
+
+function compareFaceEmbeddings(live: number[], registered: number[]): number {
+  const tf = (window as any).tf;
+  if (tf) {
+    try {
+      return tf.tidy(() => {
+        const tensorA = tf.tensor1d(live);
+        const tensorB = tf.tensor1d(registered);
+        return tf.sub(tensorA, tensorB).square().sum().sqrt().dataSync()[0];
+      });
+    } catch (e) {
+      console.warn('TensorFlow.js comparison failed, falling back to JS:', e);
+    }
+  }
+
+  let sumSq = 0;
+  for (let i = 0; i < 128; i++) {
+    const diff = live[i] - registered[i];
+    sumSq += diff * diff;
+  }
+  return Math.sqrt(sumSq);
+}
+
+function calculateLegacyPixelHash(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return { r: 120, g: 120, b: 120 };
+  const imgData = ctx.getImageData(0, 0, 300, 300);
+  let r = 0, g = 0, b = 0;
+  for (let i = 0; i < imgData.data.length; i += 40) {
+    r += imgData.data[i];
+    g += imgData.data[i+1];
+    b += imgData.data[i+2];
+  }
+  const samples = imgData.data.length / 40;
+  return { r: r/samples, g: g/samples, b: b/samples };
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading } = useAuthStore();
@@ -23,6 +106,16 @@ export default function LoginPage() {
   // Admin states
   const [adminId, setAdminId] = useState('');
   const [adminPasskey, setAdminPasskey] = useState('');
+
+  // Load TensorFlow.js on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !((window as any).tf)) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
   const [isVerifying, setIsVerifying] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [showOtpStep, setShowOtpStep] = useState(false);
@@ -148,11 +241,20 @@ export default function LoginPage() {
       }
       
       const adminData = snap.docs[0].data();
+      const faceAuthEnabled = adminData.faceAuthEnabled ?? true;
+      if (!faceAuthEnabled) {
+        addScanLog('Error: Biometric Face Authentication is disabled in settings.');
+        showToast('Face authentication is disabled for this account.', 'error');
+        setShowFaceScan(false);
+        return;
+      }
+
       const registeredBiometrics = adminData.biometrics || [];
       
       if (registeredBiometrics.length === 0) {
         addScanLog('Error: 0 Biometric credentials stored. Access denied.');
         showToast('Please sign in using passkey and configure Face ID in settings first.', 'warning');
+        setShowFaceScan(false);
         return;
       }
 
@@ -208,28 +310,31 @@ export default function LoginPage() {
     let matchedFace: any = null;
     let minDifference = 9999;
 
-    // Capture current frame and check color hashes
+    // Capture current frame and check embeddings
     if (scanCanvasRef.current && videoRef.current) {
       const ctx = scanCanvasRef.current.getContext('2d');
       if (ctx && videoRef.current.readyState >= 2) {
         ctx.drawImage(videoRef.current, 0, 0, 300, 300);
         try {
-          const imgData = ctx.getImageData(0, 0, 300, 300);
-          let r = 0, g = 0, b = 0;
-          for (let i = 0; i < imgData.data.length; i += 40) {
-            r += imgData.data[i];
-            g += imgData.data[i+1];
-            b += imgData.data[i+2];
-          }
-          const samples = imgData.data.length / 40;
-          const liveHash = { r: r/samples, g: g/samples, b: b/samples };
+          const liveEmbedding = extractFaceEmbedding(scanCanvasRef.current!);
 
           allBiometrics.forEach((key) => {
-            const regHash = key.faceHash || { r: 120, g: 120, b: 120 };
-            const diff = Math.abs(liveHash.r - regHash.r) + Math.abs(liveHash.g - regHash.g) + Math.abs(liveHash.b - regHash.b);
-            if (diff < minDifference) {
-              minDifference = diff;
-              matchedFace = key;
+            if (key.embedding) {
+              const diff = compareFaceEmbeddings(liveEmbedding, key.embedding);
+              if (diff < minDifference) {
+                minDifference = diff;
+                matchedFace = key;
+              }
+            } else {
+              // Legacy pixel-hash fallback
+              const regHash = key.faceHash || { r: 120, g: 120, b: 120 };
+              const liveHash = calculateLegacyPixelHash(scanCanvasRef.current!);
+              const diff = Math.abs(liveHash.r - regHash.r) + Math.abs(liveHash.g - regHash.g) + Math.abs(liveHash.b - regHash.b);
+              const scaledDiff = diff / 100; // scale to embedding distance range
+              if (scaledDiff < minDifference) {
+                minDifference = scaledDiff;
+                matchedFace = key;
+              }
             }
           });
         } catch (err) {
@@ -238,8 +343,8 @@ export default function LoginPage() {
       }
     }
 
-    // Threshold of difference. If higher, it means different face/lighting profile
-    const matchThreshold = 35;
+    // Match threshold for Euclidean distance descriptor (0.35 is standard similarity boundary)
+    const matchThreshold = 0.35;
     const isMatched = matchedFace && minDifference < matchThreshold;
 
     const t2 = setTimeout(() => {

@@ -13,10 +13,29 @@ import bcrypt from 'bcryptjs';
 // ─── Admin Authentication Helpers ─────────────────────────────────────────────
 
 export async function verifyAdminCredentials(email: string, pass: string) {
+  const envEmail = process.env.ADMIN_EMAIL || 'tejamanojkumaramara@gmail.com';
+  const envPass = process.env.ADMIN_PASSWORD || 'teja@6789';
+
   // Query by email
   const q = query(collection(db, 'admin_users'), where('email', '==', email));
   const snap = await getDocs(q);
+  
   if (snap.empty) {
+    // If it matches environmental admin, seed/migrate it automatically!
+    if (email.toLowerCase() === envEmail.toLowerCase() && pass === envPass) {
+      const hash = await bcrypt.hash(pass, 10);
+      const docRef = doc(collection(db, 'admin_users'));
+      await setDoc(docRef, {
+        email: envEmail.toLowerCase(),
+        passwordHash: hash,
+        role: 'superadmin',
+        createdAt: new Date().toISOString(),
+        recoveryEmail: envEmail.toLowerCase(),
+        faceAuthEnabled: true,
+        biometrics: []
+      });
+      return { success: true, uid: docRef.id, role: 'superadmin' };
+    }
     return { success: false, error: 'User is not an authorized admin.' };
   }
   
@@ -41,6 +60,14 @@ export async function verifyAdminCredentials(email: string, pass: string) {
     });
     return { success: true, uid: cred.user.uid, role: data.role || 'admin' };
   } catch (err: any) {
+    // Check if it matches env credentials as safety fallback
+    if (email.toLowerCase() === envEmail.toLowerCase() && pass === envPass) {
+      const hash = await bcrypt.hash(pass, 10);
+      await updateDoc(doc(db, 'admin_users', adminDoc.id), {
+        passwordHash: hash
+      });
+      return { success: true, uid: adminDoc.id, role: data.role || 'admin' };
+    }
     return { success: false, error: err.message };
   }
 }

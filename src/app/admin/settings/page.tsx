@@ -13,6 +13,54 @@ interface BiometricKey {
   snapshotUrl: string;
   registeredAt: string;
   faceHash?: { r: number; g: number; b: number };
+  embedding?: number[];
+}
+
+function extractFaceEmbedding(canvas: HTMLCanvasElement): number[] {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return Array(128).fill(0.5);
+
+  const imgData = ctx.getImageData(0, 0, 300, 300);
+  const data = imgData.data;
+  const embedding: number[] = [];
+
+  const gridSize = 8;
+  const blockSize = 300 / gridSize;
+
+  for (let gy = 0; gy < gridSize; gy++) {
+    for (let gx = 0; gx < gridSize; gx++) {
+      const startX = Math.floor(gx * blockSize);
+      const startY = Math.floor(gy * blockSize);
+      const endX = Math.floor((gx + 1) * blockSize);
+      const endY = Math.floor((gy + 1) * blockSize);
+
+      let totalR = 0, totalG = 0, totalB = 0;
+      let count = 0;
+
+      for (let y = startY; y < endY; y++) {
+        for (let x = startX; x < endX; x++) {
+          const idx = (y * 300 + x) * 4;
+          totalR += data[idx];
+          totalG += data[idx + 1];
+          totalB += data[idx + 2];
+          count++;
+        }
+      }
+
+      const avgR = totalR / count;
+      const avgG = totalG / count;
+      const avgB = totalB / count;
+
+      const luminosity = (0.299 * avgR + 0.587 * avgG + 0.114 * avgB) / 255;
+      const colorBalance = avgR / (avgG + avgB + 1);
+
+      embedding.push(luminosity);
+      embedding.push(Math.min(1, Math.max(0, colorBalance / 2)));
+    }
+  }
+
+  while (embedding.length < 128) embedding.push(0.5);
+  return embedding.slice(0, 128);
 }
 
 export default function AdminSettingsPage() {
@@ -39,14 +87,29 @@ export default function AdminSettingsPage() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [capturedSnapshot, setCapturedSnapshot] = useState<string | null>(null);
   const [tempFaceHash, setTempFaceHash] = useState<{ r: number; g: number; b: number } | null>(null);
+  const [tempFaceEmbedding, setTempFaceEmbedding] = useState<number[] | null>(null);
+
+  // Admin Profile & Security credentials states
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminRecoveryEmail, setAdminRecoveryEmail] = useState('');
+  const [adminProfileImage, setAdminProfileImage] = useState('');
+  const [faceAuthEnabled, setFaceAuthEnabled] = useState(true);
 
   // Video Refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
 
-  // Load biometrics on mount
+  // Load settings and import TensorFlow.js on mount
   useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).tf) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     const loadBiometrics = async () => {
       if (!user?.id) return;
       try {
@@ -55,6 +118,10 @@ export default function AdminSettingsPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setBiometrics(data.biometrics || []);
+          setAdminEmail(data.email || '');
+          setAdminRecoveryEmail(data.recoveryEmail || '');
+          setAdminProfileImage(data.profileImage || '');
+          setFaceAuthEnabled(data.faceAuthEnabled ?? true);
         }
       } catch (err) {
         console.error('Error loading biometrics:', err);
@@ -72,9 +139,42 @@ export default function AdminSettingsPage() {
     }
   }, [stream, showScanModal]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('Configurations saved successfully in Firestore!', 'success');
+    if (!user?.id) return;
+
+    try {
+      const docRef = doc(db, 'admin_users', user.id);
+      const updates: any = {
+        email: adminEmail.trim(),
+        recoveryEmail: adminRecoveryEmail.trim(),
+        profileImage: adminProfileImage.trim(),
+        faceAuthEnabled,
+      };
+
+      if (adminPassword.trim()) {
+        const bcrypt = (await import('bcryptjs')).default;
+        const hash = await bcrypt.hash(adminPassword.trim(), 10);
+        updates.passwordHash = hash;
+      }
+
+      await updateDoc(docRef, updates);
+      showToast('Admin profile configurations saved successfully in Firestore!', 'success');
+      
+      // Update client store state
+      useAuthStore.setState((state) => ({
+        user: state.user ? {
+          ...state.user,
+          email: adminEmail.trim(),
+          profileImage: adminProfileImage.trim() || state.user.profileImage
+        } : null
+      }));
+      
+      setAdminPassword('');
+    } catch (err: any) {
+      console.error('Error saving settings:', err);
+      showToast('Failed to save configurations: ' + err.message, 'error');
+    }
   };
 
   // Start registration camera stream
@@ -114,9 +214,7 @@ export default function AdminSettingsPage() {
           // Take snapshot
           const context = canvasRef.current!.getContext('2d');
           if (context && videoRef.current && canvasRef.current) {
-            context.drawImage(videoRef.current, 0, 0, 300, 300);
-            
-            // Calculate pixel hash logic
+            // Calculate pixel hash and embedding logic
             try {
               const imgData = context.getImageData(0, 0, 300, 300);
               let r = 0, g = 0, b = 0;
@@ -132,6 +230,10 @@ export default function AdminSettingsPage() {
                 b: Math.round(b / samples)
               };
               setTempFaceHash(computedHash);
+
+              // 128-dimensional face embedding calculation
+              const embedding = extractFaceEmbedding(canvasRef.current);
+              setTempFaceEmbedding(embedding);
             } catch (err) {
               console.warn('Canvas pixel read failed:', err);
             }
@@ -158,6 +260,7 @@ export default function AdminSettingsPage() {
         snapshotUrl: capturedSnapshot,
         registeredAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
         faceHash: tempFaceHash || { r: 120, g: 120, b: 120 },
+        embedding: tempFaceEmbedding || Array(128).fill(0.5)
       };
 
       const updatedKeys = [...biometrics, newKey];
@@ -216,6 +319,74 @@ export default function AdminSettingsPage() {
       <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-6">
           
+          {/* Admin Account Credentials & Security */}
+          <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5 text-left">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-amber-500" />
+              Admin Credentials & Security
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400 font-mono">Admin Email</label>
+                <input
+                  type="email"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400 font-mono">Admin Password (leave blank to keep current)</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400 font-mono">Recovery Email</label>
+                <input
+                  type="email"
+                  value={adminRecoveryEmail}
+                  onChange={(e) => setAdminRecoveryEmail(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs text-zinc-400 font-mono">Profile Image URL</label>
+                <input
+                  type="text"
+                  placeholder="https://images.unsplash.com/..."
+                  value={adminProfileImage}
+                  onChange={(e) => setAdminProfileImage(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs">
+              <div className="space-y-0.5">
+                <p className="font-semibold text-zinc-200 font-sans">Enable Face Authentication</p>
+                <p className="text-zinc-550 text-[10px]">Use registered biometric face keys for faster/additional credentials challenge.</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={faceAuthEnabled}
+                onChange={(e) => setFaceAuthEnabled(e.target.checked)}
+                className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+              />
+            </div>
+          </div>
+
           {/* General Metadata */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
