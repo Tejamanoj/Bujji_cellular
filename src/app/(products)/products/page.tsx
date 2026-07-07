@@ -13,8 +13,10 @@ import { FilterSidebar } from '@/components/products/FilterSidebar';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
+import { useRouter } from 'next/navigation';
 
 export default function ProductsPage() {
+  const router = useRouter();
   const { filters, setFilters, getFilteredProducts, quickViewProduct, setQuickViewProduct, fetchProducts } = useProductStore();
   const { addItem } = useCartStore();
   const { wishlist, toggleWishlist } = useUserStore();

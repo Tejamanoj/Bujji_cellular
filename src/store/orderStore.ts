@@ -20,7 +20,7 @@ interface OrderState {
     address: Address,
     paymentMethod: string
   ) => Promise<Order | null>;
-  fetchOrders: (customerId: string) => Promise<void>;
+  fetchOrders: (customerId: string) => void;
   fetchOrderById: (id: string) => Promise<Order | null>;
   cancelOrder: (id: string) => Promise<boolean>;
 }
@@ -70,10 +70,64 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     return null;
   },
 
-  fetchOrders: async (customerId) => {
+  fetchOrders: (customerId) => {
     set({ isLoading: true });
-    const list = await fetchOrdersByCustomer(customerId);
-    set({ orders: list, isLoading: false });
+    
+    if (unsubOrdersList) {
+      unsubOrdersList();
+    }
+
+    const q = query(
+      collection(db, 'orders'),
+      where('customerId', '==', customerId),
+      orderBy('date', 'desc')
+    );
+
+    unsubOrdersList = onSnapshot(q, (snapshot) => {
+      const list: Order[] = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          date: data.date,
+          status: data.status,
+          items: (data.items || []).map((i: any) => ({
+            id: i.id,
+            product: {
+              id: i.productId,
+              name: i.productName,
+              price: i.price,
+              images: [i.productImage],
+              originalPrice: i.price,
+              description: '',
+              rating: 5,
+              category: '',
+              brand: '',
+              colors: [],
+              storage: [],
+              specs: {},
+              reviews: [],
+              qa: [],
+              stock: 1,
+            },
+            quantity: i.quantity,
+            selectedColor: i.selectedColor,
+            selectedStorage: i.selectedStorage,
+          })),
+          subtotal: data.subtotal,
+          discount: data.discount ?? 0,
+          shipping: data.shipping ?? 0,
+          total: data.total,
+          shippingAddress: data.shippingAddress,
+          paymentMethod: data.paymentMethod,
+          trackingTimeline: data.trackingTimeline ?? [],
+          invoiceUrl: data.invoiceUrl ?? '',
+        };
+      });
+      set({ orders: list, isLoading: false });
+    }, (error) => {
+      console.error('Orders subscription error:', error);
+      set({ isLoading: false });
+    });
   },
 
   fetchOrderById: async (id) => {
@@ -97,3 +151,9 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     return false;
   }
 }));
+
+import { onSnapshot, collection, query, where, orderBy } from 'firebase/firestore';
+import { db } from '@/backend/firebase';
+
+let unsubOrdersList: (() => void) | null = null;
+

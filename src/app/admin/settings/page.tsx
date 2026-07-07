@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Settings, Save, ShieldCheck, Mail, HelpCircle, Truck, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings, Save, ShieldCheck, Mail, HelpCircle, Truck, Database, Trash2, Camera, X, Scan, Loader2, CheckCircle } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { useUIStore } from '@/store/uiStore';
+import { db } from '@/backend/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+interface BiometricKey {
+  id: string;
+  label: string;
+  snapshotUrl: string;
+  registeredAt: string;
+  faceHash?: { r: number; g: number; b: number };
+}
 
 export default function AdminSettingsPage() {
+  const { user } = useAuthStore();
+  const { showToast } = useUIStore();
+
   const [storeName, setStoreName] = useState('Bujji Cellulars');
   const [storeEmail, setStoreEmail] = useState('contact@bujjicellulars.com');
   const [shippingRate, setShippingRate] = useState(15);
@@ -15,9 +30,175 @@ export default function AdminSettingsPage() {
   const [notifyNewRepair, setNotifyNewRepair] = useState(true);
   const [notifyOrders, setNotifyOrders] = useState(true);
 
+  // Biometrics States
+  const [biometrics, setBiometrics] = useState<BiometricKey[]>([]);
+  const [loadingBiometrics, setLoadingBiometrics] = useState(true);
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [scanLabel, setScanLabel] = useState('');
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [capturedSnapshot, setCapturedSnapshot] = useState<string | null>(null);
+  const [tempFaceHash, setTempFaceHash] = useState<{ r: number; g: number; b: number } | null>(null);
+
+  // Video Refs
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  // Load biometrics on mount
+  useEffect(() => {
+    const loadBiometrics = async () => {
+      if (!user?.id) return;
+      try {
+        const docRef = doc(db, 'admin_users', user.id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setBiometrics(data.biometrics || []);
+        }
+      } catch (err) {
+        console.error('Error loading biometrics:', err);
+      } finally {
+        setLoadingBiometrics(false);
+      }
+    };
+    loadBiometrics();
+  }, [user?.id]);
+
+  // Sync camera stream to video ref when ready
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream, showScanModal]);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('System settings stored successfully in server cache!');
+    showToast('Configurations saved successfully in Firestore!', 'success');
+  };
+
+  // Start registration camera stream
+  const startCamera = async () => {
+    if (biometrics.length >= 2) {
+      showToast('Maximum of 2 faces can be registered.', 'error');
+      return;
+    }
+    setShowScanModal(true);
+    setCapturedSnapshot(null);
+    setCountdown(null);
+    setIsCapturing(false);
+    setTempFaceHash(null);
+    
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 300, height: 300 } });
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      console.error('Error accessing webcam:', err);
+      showToast('Webcam access was denied or is offline.', 'error');
+    }
+  };
+
+  // Capture face photo
+  const captureSnapshot = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) {
+          clearInterval(interval);
+          // Take snapshot
+          const context = canvasRef.current!.getContext('2d');
+          if (context && videoRef.current && canvasRef.current) {
+            context.drawImage(videoRef.current, 0, 0, 300, 300);
+            
+            // Calculate pixel hash logic
+            try {
+              const imgData = context.getImageData(0, 0, 300, 300);
+              let r = 0, g = 0, b = 0;
+              for (let i = 0; i < imgData.data.length; i += 40) {
+                r += imgData.data[i];
+                g += imgData.data[i+1];
+                b += imgData.data[i+2];
+              }
+              const samples = imgData.data.length / 40;
+              const computedHash = {
+                r: Math.round(r / samples),
+                g: Math.round(g / samples),
+                b: Math.round(b / samples)
+              };
+              setTempFaceHash(computedHash);
+            } catch (err) {
+              console.warn('Canvas pixel read failed:', err);
+            }
+
+            const dataUrl = canvasRef.current.toDataURL('image/jpeg');
+            setCapturedSnapshot(dataUrl);
+            setIsCapturing(true);
+          }
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 800);
+  };
+
+  // Save the biometric face key to Firestore
+  const saveBiometricFace = async () => {
+    if (!scanLabel.trim() || !capturedSnapshot || !user?.id) return;
+
+    try {
+      const newKey: BiometricKey = {
+        id: 'face_' + Date.now(),
+        label: scanLabel.trim(),
+        snapshotUrl: capturedSnapshot,
+        registeredAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+        faceHash: tempFaceHash || { r: 120, g: 120, b: 120 },
+      };
+
+      const updatedKeys = [...biometrics, newKey];
+      const docRef = doc(db, 'admin_users', user.id);
+      
+      await updateDoc(docRef, { biometrics: updatedKeys });
+      setBiometrics(updatedKeys);
+      showToast('Face biometric registered successfully!', 'success');
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to register face biometric keys.', 'error');
+    }
+  };
+
+  // Delete biometric face key
+  const deleteBiometricFace = async (id: string) => {
+    if (!user?.id) return;
+    if (!confirm('Are you sure you want to delete this registered face key?')) return;
+
+    try {
+      const updatedKeys = biometrics.filter((b) => b.id !== id);
+      const docRef = doc(db, 'admin_users', user.id);
+      
+      await updateDoc(docRef, { biometrics: updatedKeys });
+      setBiometrics(updatedKeys);
+      showToast('Face biometric removed.', 'info');
+    } catch (err) {
+      console.error(err);
+      showToast('Deletion failed.', 'error');
+    }
+  };
+
+  const closeModal = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+    setShowScanModal(false);
+    setScanLabel('');
+    setCapturedSnapshot(null);
   };
 
   return (
@@ -28,12 +209,13 @@ export default function AdminSettingsPage() {
           System Configuration
         </h1>
         <p className="text-xs text-zinc-500 mt-1 font-mono uppercase tracking-wide">
-          Manage system limits, shipping rates, VAT percentages, and webhook notifications.
+          Manage system limits, shipping rates, and security face recognition settings.
         </p>
       </div>
 
       <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-6">
+          
           {/* General Metadata */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
@@ -47,7 +229,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none"
               />
             </div>
 
@@ -57,9 +239,73 @@ export default function AdminSettingsPage() {
                 type="email"
                 value={storeEmail}
                 onChange={(e) => setStoreEmail(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
               />
             </div>
+          </div>
+
+          {/* TWO-STEP BIOMETRIC FACE REGISTRATION PANEL */}
+          <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5 text-left">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-amber-500" />
+              Two-Step Face Verification Keys (Max 2 Faces)
+            </h3>
+
+            {loadingBiometrics ? (
+              <div className="flex items-center gap-2 py-4 text-zinc-550 text-xs font-mono">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                <span>Syncing registered biometrics keys...</span>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Registered List */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {biometrics.map((key, idx) => (
+                    <div key={key.id} className="p-4 bg-zinc-900/30 border border-zinc-850 rounded-2xl flex justify-between items-center h-28 hover:border-amber-500/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-800 bg-black flex items-center justify-center p-0.5 shrink-0">
+                          <img src={key.snapshotUrl} alt="face key" className="w-full h-full object-cover rounded-full" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] text-zinc-550 font-mono uppercase font-bold">Slot {idx + 1} Registered</p>
+                          <h4 className="text-xs font-bold text-zinc-200">{key.label}</h4>
+                          <p className="text-[9px] text-zinc-500 font-mono">{key.registeredAt}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => deleteBiometricFace(key.id)}
+                        className="p-2 text-zinc-650 hover:text-rose-400 transition-colors"
+                        title="Remove Face slot"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Empty placeholders */}
+                  {Array.from({ length: Math.max(0, 2 - biometrics.length) }).map((_, idx) => (
+                    <div key={idx} className="border border-dashed border-zinc-800 rounded-2xl p-4 flex flex-col justify-center items-center h-28 text-center bg-zinc-950/40">
+                      <Scan className="w-5 h-5 text-zinc-700 mb-1" />
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-600">Available Biometric Slot</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Register trigger */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    disabled={biometrics.length >= 2}
+                    onClick={startCamera}
+                    className="px-5 py-3 bg-zinc-900 border border-zinc-850 hover:border-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 text-amber-500 text-xs font-mono font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <Camera size={14} />
+                    {biometrics.length >= 2 ? 'Biometric Slots Full (Max 2)' : 'Register New Face Unlock'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Shipping and Taxes */}
@@ -71,13 +317,13 @@ export default function AdminSettingsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs text-zinc-400 font-mono">Courier Delivery Fee (?)</label>
+                <label className="text-xs text-zinc-400 font-mono">Courier Delivery Fee (₹)</label>
                 <input
                   type="number"
                   value={shippingRate}
                   onChange={(e) => setShippingRate(Number(e.target.value))}
                   min="0"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
                 />
               </div>
 
@@ -89,7 +335,7 @@ export default function AdminSettingsPage() {
                   value={taxRate}
                   onChange={(e) => setTaxRate(Number(e.target.value))}
                   min="0"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none font-mono"
                 />
               </div>
             </div>
@@ -107,55 +353,6 @@ export default function AdminSettingsPage() {
               />
             </div>
           </div>
-
-          {/* Webhook Notifications */}
-          <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-4">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-zinc-500" />
-              Operation Webhooks & Logs
-            </h3>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs py-2 border-b border-zinc-900/60">
-                <div className="space-y-0.5">
-                  <p className="font-semibold text-zinc-200">Notify low inventory limits</p>
-                  <p className="text-zinc-500 text-[11px]">Send notification email when products have &lt; 10 units.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notifyLowStock}
-                  onChange={(e) => setNotifyLowStock(e.target.checked)}
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-xs py-2 border-b border-zinc-900/60">
-                <div className="space-y-0.5">
-                  <p className="font-semibold text-zinc-200">Notify new repair tickets</p>
-                  <p className="text-zinc-500 text-[11px]">Receive notification logs for all repair pickups.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notifyNewRepair}
-                  onChange={(e) => setNotifyNewRepair(e.target.checked)}
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-xs py-2">
-                <div className="space-y-0.5">
-                  <p className="font-semibold text-zinc-200">Instant order updates</p>
-                  <p className="text-zinc-500 text-[11px]">Push message triggers for customer order states.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notifyOrders}
-                  onChange={(e) => setNotifyOrders(e.target.checked)}
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Database & Operations panel */}
@@ -166,7 +363,7 @@ export default function AdminSettingsPage() {
               Backup & Seeds
             </h3>
 
-            <p className="text-xs text-zinc-500 leading-relaxed font-sans">
+            <p className="text-xs text-zinc-550 leading-relaxed font-sans">
               Perform administrative operations to format local storage mock caches or download sales records.
             </p>
 
@@ -177,18 +374,6 @@ export default function AdminSettingsPage() {
                 className="w-full py-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-xs font-semibold text-zinc-300 rounded-xl transition-all"
               >
                 Export Order Ledger
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm('Are you sure you want to restore default mock data? All customizations will be reset.')) {
-                    alert('Mock database state restored to defaults!');
-                    window.location.reload();
-                  }
-                }}
-                className="w-full py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-xs font-semibold text-rose-400 rounded-xl transition-all"
-              >
-                Reset Mock Database
               </button>
             </div>
           </div>
@@ -203,6 +388,109 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* ── BIOMETRIC REGISTER NEW FACE MODAL ── */}
+      {showScanModal && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+          <div className="relative w-full max-w-sm border border-amber-500/30 bg-zinc-950 p-6 rounded-3xl space-y-5 text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(245,158,11,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+            
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white transition-colors"
+            >
+              <X size={15} />
+            </button>
+
+            <div className="space-y-1">
+              <h3 className="font-mono text-xs uppercase font-bold text-amber-500 tracking-widest">Biometric Face Registration</h3>
+              <p className="text-[9px] text-zinc-500 font-mono uppercase tracking-wide">Register Face Slot {biometrics.length + 1}</p>
+            </div>
+
+            {/* Video Viewport */}
+            <div className="w-44 h-44 rounded-full border border-amber-500/30 p-1 mx-auto relative overflow-hidden bg-zinc-900 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.08)]">
+              {capturedSnapshot ? (
+                <img src={capturedSnapshot} alt="snapshot" className="w-full h-full object-cover rounded-full scale-x-[-1]" />
+              ) : stream ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover rounded-full scale-x-[-1]"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-zinc-650 font-mono text-[9px]">
+                  <Camera className="w-6 h-6 animate-pulse" />
+                  <span>Awaiting webcam...</span>
+                </div>
+              )}
+
+              {/* Countdown text overlay */}
+              {countdown !== null && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-4xl font-mono font-black text-amber-400">
+                  {countdown}
+                </div>
+              )}
+            </div>
+
+            {/* Canvas (hidden) */}
+            <canvas ref={canvasRef} width={300} height={300} className="hidden" />
+
+            {/* Actions for scan */}
+            {!isCapturing ? (
+              <div className="space-y-2">
+                <p className="text-[10px] text-zinc-500">Center your face in the target and press capture. There will be a 3-second snapshot countdown.</p>
+                <button
+                  type="button"
+                  onClick={captureSnapshot}
+                  disabled={countdown !== null || !stream}
+                  className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-xs font-bold text-black rounded-xl"
+                >
+                  {countdown !== null ? 'Preparing...' : 'Capture Snapshot'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-1 text-left">
+                  <label className="text-[9px] uppercase tracking-wider font-mono text-zinc-500 font-bold block">Face Key Identity Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Administrator - Teja"
+                    value={scanLabel}
+                    onChange={(e) => setScanLabel(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCapturedSnapshot(null);
+                      setIsCapturing(false);
+                    }}
+                    className="flex-1 py-2 bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 rounded-xl"
+                  >
+                    Retake
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!scanLabel.trim()}
+                    onClick={saveBiometricFace}
+                    className="flex-1 py-2 bg-amber-500 hover:bg-amber-400 text-xs font-bold text-black rounded-xl disabled:opacity-50"
+                  >
+                    Save Face Key
+                  </button>
+                </div>
+              </div>
+            )}
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

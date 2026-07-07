@@ -5,6 +5,7 @@ import { useUserStore } from '@/store/userStore';
 import { useProductStore } from '@/store/productStore';
 import { useCartStore } from '@/store/cartStore';
 import { useUIStore } from '@/store/uiStore';
+import { useAuthStore } from '@/store/authStore';
 import { Star, Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ export default function WishlistPage() {
   const { products } = useProductStore();
   const { addItem } = useCartStore();
   const { showToast } = useUIStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   const wishes = products.filter((p) => wishlist.includes(p.id));
 
@@ -53,8 +55,12 @@ export default function WishlistPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleWishlist(product.id);
-                      showToast('Item removed from wishlist.', 'info');
+                      if (user?.id) {
+                        toggleWishlist(user.id, product.id);
+                        showToast('Item removed from wishlist.', 'info');
+                      } else {
+                        showToast('Please log in.', 'error');
+                      }
                     }}
                     className="absolute top-2 right-2 p-1.5 rounded-full bg-zinc-950/80 backdrop-blur border border-white/8 text-zinc-400 hover:text-red-500"
                     title="Remove item"

@@ -131,7 +131,18 @@ export default function AdminProductsPage() {
     },
   ];
 
-  const categories = ['all', 'smartphones', 'audio', 'wearables', 'accessories'];
+  const categories = [
+    'all',
+    'mobile-phones',
+    'tv',
+    'fridge',
+    'washing-machines',
+    'inverters',
+    'laptops',
+    'phone-accessories',
+    'audio',
+    'wearables'
+  ];
 
   const categoryFilterComponent = (
     <select

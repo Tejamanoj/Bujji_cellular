@@ -139,10 +139,12 @@ export default function ProfilePage() {
                   </div>
                   <button
                     onClick={() => {
-                      removeAddress(addr.id);
-                      showToast('Address removed.', 'warning');
+                      if (user?.id) {
+                        removeAddress(user.id, addr.id);
+                        showToast('Address removed.', 'warning');
+                      }
                     }}
-                    className="text-zinc-600 hover:text-red-400 transition-colors p-1"
+                    className="text-zinc-650 hover:text-red-400 transition-colors p-1"
                   >
                     <Trash2 size={12} />
                   </button>
@@ -168,10 +170,12 @@ export default function ProfilePage() {
                   </div>
                   <button
                     onClick={() => {
-                      removeCard(card.id);
-                      showToast('Card removed from vault.', 'warning');
+                      if (user?.id) {
+                        removeCard(user.id, card.id);
+                        showToast('Card removed from vault.', 'warning');
+                      }
                     }}
-                    className="text-zinc-600 hover:text-red-400 transition-colors p-1"
+                    className="text-zinc-650 hover:text-red-400 transition-colors p-1"
                   >
                     <Trash2 size={12} />
                   </button>

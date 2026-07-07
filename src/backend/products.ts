@@ -46,8 +46,15 @@ export async function createProduct(
   product: Omit<Product, 'id' | 'rating' | 'reviews' | 'qa'>
 ) {
   try {
+    const cleanedProduct: any = {};
+    Object.entries(product).forEach(([key, val]) => {
+      if (val !== undefined) {
+        cleanedProduct[key] = val;
+      }
+    });
+
     const ref = await addDoc(collection(db, COLLECTION), {
-      ...product,
+      ...cleanedProduct,
       rating: 0,
       reviews: [],
       qa: [],
@@ -64,7 +71,14 @@ export async function createProduct(
 export async function updateProduct(product: Product) {
   try {
     const { id, ...data } = product;
-    await updateDoc(doc(db, COLLECTION, id), { ...data, updatedAt: serverTimestamp() });
+    const cleanedData: any = {};
+    Object.entries(data).forEach(([key, val]) => {
+      if (val !== undefined) {
+        cleanedData[key] = val;
+      }
+    });
+
+    await updateDoc(doc(db, COLLECTION, id), { ...cleanedData, updatedAt: serverTimestamp() });
     return { success: true };
   } catch (e: any) {
     console.error('❌ updateProduct:', e.message);
@@ -114,5 +128,10 @@ function mapDoc(id: string, data: any): Product {
     stock: data.stock,
     featured: data.featured ?? false,
     flashSale: data.flashSale ?? false,
+    thumbnails: data.thumbnails ?? [],
+    highlights: data.highlights ?? [],
+    videos: data.videos ?? [],
+    accessoryIds: data.accessoryIds ?? [],
+    relatedIds: data.relatedIds ?? [],
   };
 }

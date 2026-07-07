@@ -2,14 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, CreditCard, MapPin, Truck, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Check, CreditCard, MapPin, Truck, ChevronRight, ShoppingBag, Smartphone, Landmark, Banknote } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useOrderStore } from '@/store/orderStore';
 import { useUIStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/common/Button';
-import { Card } from '@/components/common/Card';
 import { Input } from '@/components/common/Input';
 
 export default function CheckoutPage() {
@@ -18,6 +17,7 @@ export default function CheckoutPage() {
   const { addresses, cards, addAddress, addCard } = useUserStore();
   const { createOrder } = useOrderStore();
   const { showToast } = useUIStore();
+  const { user } = useAuthStore();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard');
 
   // Payment Step States
+  const [paymentType, setPaymentType] = useState<'card' | 'upi' | 'netbanking' | 'cod'>('card');
   const [selectedCardId, setSelectedCardId] = useState(cards[0]?.id || '');
   const [newCardHolder, setNewCardHolder] = useState('');
   const [newCardNumber, setNewCardNumber] = useState('');
@@ -42,17 +43,20 @@ export default function CheckoutPage() {
   const [newCardCvv, setNewCardCvv] = useState('');
   const [showNewCardForm, setShowNewCardForm] = useState(false);
 
-  const { subtotal, discount, shipping: baseShipping, total: baseTotal } = getTotals();
+  // Alternative payment inputs
+  const [upiId, setUpiId] = useState('');
+  const [selectedBank, setSelectedBank] = useState('SBI');
+
+  const { subtotal, discount, shipping: baseShipping } = getTotals();
 
   // Recalculate shipping based on choice
   const actualShipping = shippingMethod === 'express' ? 15 : baseShipping;
   const actualTotal = subtotal - discount + actualShipping;
 
-  const { user } = useAuthStore();
-
-  const handleAddNewAddress = (e: React.FormEvent) => {
+  const handleAddNewAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAddrStreet || !newAddrCity || !newAddrZip || !user) return;
+    
     const newAddr = {
       name: newAddrName || 'Saved Address',
       street: newAddrStreet,
@@ -62,32 +66,74 @@ export default function CheckoutPage() {
       phone: newAddrPhone,
       isDefault: false,
     };
-    addAddress(user.id, newAddr);
+    
+    const generatedId = await addAddress(user.id, newAddr);
+    setSelectedAddressId(generatedId);
     showToast('Delivery address saved.', 'success');
     setShowNewAddrForm(false);
+    
+    // Clear fields
+    setNewAddrName('');
+    setNewAddrStreet('');
+    setNewAddrCity('');
+    setNewAddrState('');
+    setNewAddrZip('');
+    setNewAddrPhone('');
   };
 
-  const handleAddNewCard = (e: React.FormEvent) => {
+  const handleAddNewCard = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCardHolder || !newCardNumber || !user) return;
+    
     const newCard = {
       holderName: newCardHolder,
       cardNumber: '•••• •••• •••• ' + newCardNumber.slice(-4),
       expiry: newCardExpiry,
       cardType: 'visa' as const,
     };
-    addCard(user.id, newCard);
-    showToast('Payment method saved.', 'success');
+    
+    const generatedId = await addCard(user.id, newCard);
+    setSelectedCardId(generatedId);
+    showToast('Payment method card saved.', 'success');
     setShowNewCardForm(false);
+
+    // Clear fields
+    setNewCardHolder('');
+    setNewCardNumber('');
+    setNewCardExpiry('');
+    setNewCardCvv('');
+  };
+
+  const getPaymentDetailsString = () => {
+    if (paymentType === 'card') {
+      const card = cards.find((c) => c.id === selectedCardId) || cards[0];
+      return card ? `Card ending in ${card.cardNumber.slice(-4)}` : 'Credit/Debit Card';
+    }
+    if (paymentType === 'upi') {
+      return `UPI: ${upiId || 'Quick Pay'}`;
+    }
+    if (paymentType === 'netbanking') {
+      return `Net Banking: ${selectedBank}`;
+    }
+    return 'Cash on Delivery (COD)';
   };
 
   const handleCompleteCheckout = async () => {
     const address = addresses.find((a) => a.id === selectedAddressId) || addresses[0];
-    const card = cards.find((c) => c.id === selectedCardId) || cards[0];
     
     if (!address) {
       showToast('Please specify a delivery address.', 'error');
       setStep(1);
+      return;
+    }
+
+    if (paymentType === 'card' && !selectedCardId && cards.length === 0) {
+      showToast('Please select or add a payment card.', 'error');
+      return;
+    }
+
+    if (paymentType === 'upi' && !upiId.trim()) {
+      showToast('Please enter your UPI ID.', 'error');
       return;
     }
 
@@ -98,6 +144,7 @@ export default function CheckoutPage() {
     }
 
     try {
+      const paymentInfo = getPaymentDetailsString();
       const order = await createOrder(
         user.id,
         user.name,
@@ -105,7 +152,7 @@ export default function CheckoutPage() {
         items,
         { subtotal, discount, shipping: actualShipping, total: actualTotal },
         address,
-        card ? `${card.cardType.toUpperCase()} ending in ${card.cardNumber.slice(-4)}` : 'Alternative Escrow'
+        paymentInfo
       );
       
       if (order) {
@@ -209,7 +256,7 @@ export default function CheckoutPage() {
                 </Button>
               ) : (
                 <form onSubmit={handleAddNewAddress} className="border-t border-zinc-900 pt-6 space-y-4">
-                  <h3 className="text-xs font-bold uppercase text-zinc-400">New Address Details</h3>
+                  <h3 className="text-xs font-bold uppercase text-zinc-400 font-mono">New Address Details</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input label="Label (e.g. Home, Work)" required value={newAddrName} onChange={(e) => setNewAddrName(e.target.value)} />
                     <Input label="Phone Number" required value={newAddrPhone} onChange={(e) => setNewAddrPhone(e.target.value)} />
@@ -238,7 +285,7 @@ export default function CheckoutPage() {
 
           {/* STEP 2: Shipping method */}
           {step === 2 && (
-            <div className="glass-panel p-6 rounded-xl border border-zinc-900 space-y-6">
+            <div className="ultra-glass p-6 rounded-2xl border border-white/5 space-y-6">
               <h2 className="font-display font-bold text-sm uppercase tracking-wider text-zinc-300">Choose Shipping Speed</h2>
               
               <div className="space-y-4">
@@ -285,7 +332,7 @@ export default function CheckoutPage() {
                       <p className="text-[10px] text-zinc-400">Next-day premium priority delivery.</p>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-primary-gold">â‚¹15.00</span>
+                  <span className="text-xs font-bold text-primary-gold">₹15.00</span>
                 </label>
               </div>
 
@@ -299,57 +346,175 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* STEP 3: Payment details */}
+          {/* STEP 3: Payment details with Multiple options */}
           {step === 3 && (
-            <div className="glass-panel p-6 rounded-xl border border-zinc-900 space-y-6">
-              <h2 className="font-display font-bold text-sm uppercase tracking-wider text-zinc-300">Secure Payment Channel</h2>
+            <div className="ultra-glass p-6 rounded-2xl border border-white/5 space-y-6">
+              <h2 className="font-display font-bold text-sm uppercase tracking-wider text-zinc-300">Choose Payment Channel</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {cards.map((card) => (
-                  <button
-                    key={card.id}
-                    onClick={() => setSelectedCardId(card.id)}
-                    className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between h-36 relative overflow-hidden ${
-                      selectedCardId === card.id
-                        ? 'border-primary-gold bg-primary-gold/5 shadow-[0_0_15px_rgba(212,175,55,0.1)]'
-                        : 'border-zinc-850 bg-zinc-950/40 hover:border-zinc-700'
-                    }`}
-                  >
-                    <div className="absolute top-2 right-2 text-zinc-650 opacity-40 uppercase tracking-widest text-[9px] font-bold font-mono">
-                      {card.cardType}
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">{card.holderName}</p>
-                      <p className="text-xs font-mono font-bold text-white tracking-widest mt-2">{card.cardNumber}</p>
-                    </div>
-                    <p className="text-[9px] text-zinc-500 font-mono">EXP: {card.expiry}</p>
-                  </button>
-                ))}
+              {/* Payment Methods selector tabs */}
+              <div className="grid grid-cols-4 gap-2 border-b border-zinc-900 pb-4">
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('card')}
+                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-[10px] uppercase font-bold tracking-wider transition-colors ${
+                    paymentType === 'card' ? 'border-primary-gold bg-primary-gold/5 text-primary-gold' : 'border-zinc-900 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <CreditCard size={14} />
+                  <span>Card</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('upi')}
+                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-[10px] uppercase font-bold tracking-wider transition-colors ${
+                    paymentType === 'upi' ? 'border-primary-gold bg-primary-gold/5 text-primary-gold' : 'border-zinc-900 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Smartphone size={14} />
+                  <span>UPI ID</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('netbanking')}
+                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-[10px] uppercase font-bold tracking-wider transition-colors ${
+                    paymentType === 'netbanking' ? 'border-primary-gold bg-primary-gold/5 text-primary-gold' : 'border-zinc-900 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Landmark size={14} />
+                  <span>Netbank</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('cod')}
+                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-[10px] uppercase font-bold tracking-wider transition-colors ${
+                    paymentType === 'cod' ? 'border-primary-gold bg-primary-gold/5 text-primary-gold' : 'border-zinc-900 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Banknote size={14} />
+                  <span>COD</span>
+                </button>
               </div>
 
-              {!showNewCardForm ? (
-                <Button variant="outline" size="sm" onClick={() => setShowNewCardForm(true)}>
-                  Add New Card
-                </Button>
-              ) : (
-                <form onSubmit={handleAddNewCard} className="border-t border-zinc-900 pt-6 space-y-4">
-                  <h3 className="text-xs font-bold uppercase text-zinc-400">New Card Details</h3>
-                  <Input label="Cardholder Name" required value={newCardHolder} onChange={(e) => setNewCardHolder(e.target.value)} />
-                  <Input label="Card Number" required maxLength={16} placeholder="16-digit card number" value={newCardNumber} onChange={(e) => setNewCardNumber(e.target.value)} />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input label="Expiry (MM/YY)" required placeholder="MM/YY" value={newCardExpiry} onChange={(e) => setNewCardExpiry(e.target.value)} />
-                    <Input label="CVV" required maxLength={3} placeholder="CVV" type="password" value={newCardCvv} onChange={(e) => setNewCardCvv(e.target.value)} />
+              {/* CARD PAYMENT PANEL */}
+              {paymentType === 'card' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {cards.map((card) => (
+                      <button
+                        key={card.id}
+                        onClick={() => setSelectedCardId(card.id)}
+                        className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between h-36 relative overflow-hidden ${
+                          selectedCardId === card.id
+                            ? 'border-primary-gold bg-primary-gold/5 shadow-[0_0_15px_rgba(212,175,55,0.1)]'
+                            : 'border-zinc-850 bg-zinc-950/40 hover:border-zinc-700'
+                        }`}
+                      >
+                        <div className="absolute top-2 right-2 text-zinc-650 opacity-40 uppercase tracking-widest text-[9px] font-bold font-mono">
+                          {card.cardType}
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">{card.holderName}</p>
+                          <p className="text-xs font-mono font-bold text-white tracking-widest mt-2">{card.cardNumber}</p>
+                        </div>
+                        <p className="text-[9px] text-zinc-500 font-mono">EXP: {card.expiry}</p>
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex space-x-3 pt-2">
-                    <Button type="submit" variant="gold" size="sm">Save Payment Card</Button>
-                    <Button variant="ghost" size="sm" onClick={() => setShowNewCardForm(false)}>Cancel</Button>
+
+                  {!showNewCardForm ? (
+                    <Button variant="outline" size="sm" onClick={() => setShowNewCardForm(true)}>
+                      Add New Card
+                    </Button>
+                  ) : (
+                    <form onSubmit={handleAddNewCard} className="border-t border-zinc-900 pt-6 space-y-4">
+                      <h3 className="text-xs font-bold uppercase text-zinc-450 font-mono">New Card Details</h3>
+                      <Input label="Cardholder Name" required value={newCardHolder} onChange={(e) => setNewCardHolder(e.target.value)} />
+                      <Input label="Card Number" required maxLength={16} placeholder="16-digit card number" value={newCardNumber} onChange={(e) => setNewCardNumber(e.target.value)} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input label="Expiry (MM/YY)" required placeholder="MM/YY" value={newCardExpiry} onChange={(e) => setNewCardExpiry(e.target.value)} />
+                        <Input label="CVV" required maxLength={3} placeholder="CVV" type="password" value={newCardCvv} onChange={(e) => setNewCardCvv(e.target.value)} />
+                      </div>
+                      <div className="flex space-x-3 pt-2">
+                        <Button type="submit" variant="gold" size="sm">Save Payment Card</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setShowNewCardForm(false)}>Cancel</Button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {/* UPI PAYMENT PANEL */}
+              {paymentType === 'upi' && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold uppercase text-zinc-400 font-mono">Pay via UPI</h3>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold">UPI ID</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. mobile@upi, username@oksbi"
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
+                      className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-200 focus:outline-none"
+                    />
                   </div>
-                </form>
+                  <div className="space-y-2 pt-2">
+                    <span className="text-[9px] uppercase tracking-wider text-zinc-550 font-bold block font-mono">Popular UPI apps</span>
+                    <div className="flex gap-2.5">
+                      {['GPay', 'PhonePe', 'Paytm', 'BHIM'].map(app => (
+                        <button
+                          key={app}
+                          type="button"
+                          onClick={() => setUpiId(`bujji.${app.toLowerCase()}@okhdfcbank`)}
+                          className="px-3.5 py-2 bg-zinc-950 border border-zinc-900 rounded-xl text-xs hover:border-amber-400/50 text-zinc-400 transition-colors"
+                        >
+                          {app}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* NET BANKING PANEL */}
+              {paymentType === 'netbanking' && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold uppercase text-zinc-400 font-mono">Net Banking Select Bank</h3>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold">Select Bank</label>
+                    <select
+                      value={selectedBank}
+                      onChange={(e) => setSelectedBank(e.target.value)}
+                      className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-200 cursor-pointer focus:outline-none"
+                    >
+                      <option value="SBI">State Bank of India (SBI)</option>
+                      <option value="HDFC">HDFC Bank</option>
+                      <option value="ICICI">ICICI Bank</option>
+                      <option value="AXIS">Axis Bank</option>
+                      <option value="KOTAK">Kotak Mahindra Bank</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* CASH ON DELIVERY PANEL */}
+              {paymentType === 'cod' && (
+                <div className="border border-emerald-500/10 bg-emerald-500/[0.03] p-5 rounded-2xl text-xs text-zinc-400 space-y-2">
+                  <h3 className="font-mono text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Cash on Delivery (COD)</h3>
+                  <p>Pay with cash or UPI QR code at your door when your items arrive. There are no additional processing fees for COD orders.</p>
+                </div>
               )}
 
               <div className="pt-6 border-t border-zinc-900 flex justify-between">
                 <Button variant="outline" size="md" onClick={() => setStep(2)}>Back</Button>
-                <Button variant="gold" size="md" onClick={() => setStep(4)} disabled={!selectedCardId}>
+                <Button
+                  variant="gold"
+                  size="md"
+                  onClick={() => setStep(4)}
+                  disabled={
+                    (paymentType === 'card' && !selectedCardId && cards.length === 0) ||
+                    (paymentType === 'upi' && !upiId.trim())
+                  }
+                >
                   <span>Review Final Order</span>
                   <ChevronRight size={14} className="ml-1" />
                 </Button>
@@ -359,7 +524,7 @@ export default function CheckoutPage() {
 
           {/* STEP 4: Review final order */}
           {step === 4 && (
-            <div className="glass-panel p-6 rounded-xl border border-zinc-900 space-y-6">
+            <div className="ultra-glass p-6 rounded-2xl border border-white/5 space-y-6">
               <h2 className="font-display font-bold text-sm uppercase tracking-wider text-zinc-300">Final Audit Review</h2>
               
               <div className="space-y-4 text-xs text-zinc-400">
@@ -377,8 +542,8 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between pb-3">
                   <span>Payment Wallet</span>
-                  <span className="text-zinc-200">
-                    Visa card ending in {cards.find((c) => c.id === selectedCardId)?.cardNumber.slice(-4)}
+                  <span className="text-zinc-200 uppercase font-mono font-bold text-amber-500">
+                    {getPaymentDetailsString()}
                   </span>
                 </div>
               </div>
@@ -395,7 +560,7 @@ export default function CheckoutPage() {
 
         {/* Right side checkout preview bar */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="glass-panel p-5 rounded-xl border border-zinc-900 space-y-4 text-left">
+          <div className="ultra-glass p-5 rounded-xl border border-white/5 space-y-4 text-left">
             <h3 className="font-display font-bold text-xs uppercase tracking-wider text-zinc-400">Your Allocation</h3>
             
             <div className="divide-y divide-zinc-900 max-h-64 overflow-y-auto pr-2">
@@ -407,33 +572,33 @@ export default function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <h4 className="text-xs font-bold text-zinc-250 truncate">{item.product.name}</h4>
                     <p className="text-[9px] text-zinc-500">{item.selectedColor} / {item.selectedStorage}</p>
-                    <div className="flex justify-between items-center text-[10px] mt-1">
-                      <span className="text-zinc-400">Qty: {item.quantity}</span>
-                      <span className="font-semibold text-primary-gold">?{item.product.price * item.quantity}</span>
+                    <div className="flex justify-between items-center text-[10px] mt-1 font-mono">
+                      <span className="text-zinc-405">Qty: {item.quantity}</span>
+                      <span className="font-semibold text-primary-gold">₹{(item.product.price * item.quantity).toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="border-t border-zinc-900 pt-3 space-y-1.5 text-xs text-zinc-400">
+            <div className="border-t border-zinc-900 pt-3 space-y-1.5 text-xs text-zinc-450 font-mono">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>?{subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-400">
                   <span>Discount</span>
-                  <span>-${discount.toFixed(2)}</span>
+                  <span>-₹{discount.toLocaleString('en-IN')}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{actualShipping === 0 ? 'FREE' : `â‚¹${actualShipping.toFixed(2)}`}</span>
+                <span>{actualShipping === 0 ? 'FREE' : `₹${actualShipping.toFixed(2)}`}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-white pt-2.5 border-t border-zinc-900">
+              <div className="flex justify-between text-sm font-bold text-white pt-2.5 border-t border-zinc-900 font-sans">
                 <span>Aggregate Total</span>
-                <span className="text-primary-gold">?{actualTotal.toFixed(2)}</span>
+                <span className="text-primary-gold font-mono">₹{actualTotal.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>

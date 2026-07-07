@@ -6,12 +6,14 @@ import { Trash2, Plus, Minus, Tag, ShoppingBag, ArrowRight, Heart } from 'lucide
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useUIStore } from '@/store/uiStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/common/Button';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, coupon, applyCoupon, removeCoupon, getTotals } = useCartStore();
   const { toggleWishlist, wishlist } = useUserStore();
   const { showToast } = useUIStore();
+  const { user, isAuthenticated } = useAuthStore();
   
   const [couponCode, setCouponCode] = useState('');
   
@@ -30,9 +32,13 @@ export default function CartPage() {
   };
 
   const handleSaveForLater = (item: any) => {
+    if (!isAuthenticated || !user) {
+      showToast('Please log in to save items to your wishlist.', 'error');
+      return;
+    }
     // Add to wishlist
     if (!wishlist.includes(item.product.id)) {
-      toggleWishlist(item.product.id);
+      toggleWishlist(user.id, item.product.id);
     }
     // Remove from cart
     removeItem(item.id);

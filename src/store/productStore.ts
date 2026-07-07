@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { Product } from '@/types';
-import { fetchAllProducts } from '@/backend/products';
 import { fetchAllCategories, Category } from '@/backend/categories';
+import { db } from '@/backend/firebase';
+import { onSnapshot, collection, query, orderBy } from 'firebase/firestore';
 
 interface Filters {
   category: string;
@@ -38,6 +39,8 @@ const initialFilters: Filters = {
   sortBy: 'featured',
 };
 
+let unsubProducts: (() => void) | null = null;
+
 export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
   categories: [],
@@ -68,9 +71,50 @@ export const useProductStore = create<ProductState>((set, get) => ({
   fetchProducts: async () => {
     if (get().isLoaded) return;
     set({ isLoading: true });
-    const items = await fetchAllProducts();
+    
+    // Fetch categories static data
     const cats = await fetchAllCategories();
-    set({ products: items, categories: cats, isLoading: false, isLoaded: true });
+    set({ categories: cats });
+
+    // Establish real-time products collection query listener
+    if (unsubProducts) {
+      unsubProducts();
+    }
+
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    unsubProducts = onSnapshot(q, (snapshot) => {
+      const items: Product[] = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          name: data.name,
+          price: data.price,
+          originalPrice: data.originalPrice,
+          description: data.description,
+          rating: data.rating ?? 0,
+          images: data.images ?? [],
+          category: data.category,
+          brand: data.brand,
+          colors: data.colors ?? [],
+          storage: data.storage ?? [],
+          specs: data.specs ?? {},
+          reviews: data.reviews ?? [],
+          qa: data.qa ?? [],
+          stock: data.stock ?? 0,
+          featured: data.featured ?? false,
+          flashSale: data.flashSale ?? false,
+          thumbnails: data.thumbnails ?? [],
+          highlights: data.highlights ?? [],
+          videos: data.videos ?? [],
+          accessoryIds: data.accessoryIds ?? [],
+          relatedIds: data.relatedIds ?? [],
+        };
+      });
+      set({ products: items, isLoading: false, isLoaded: true });
+    }, (error) => {
+      console.error('Products listener error:', error);
+      set({ isLoading: false });
+    });
   },
 
   fetchCategories: async () => {

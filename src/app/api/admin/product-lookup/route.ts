@@ -185,7 +185,7 @@ Important rules:
 - Adjust "specs" key-value pairs dynamically to fit the category. Do NOT return "N/A", "empty", or placeholder values. If a spec is not found, omit it completely.
 - suggestedPriceINR must be the actual current Indian market price (search for it).
 - suggestedColors must list all officially available colors.
-- imageUrl MUST be a direct, high-quality, high-resolution public URL of the official product render or transparent studio shot. Do NOT use lifestyle backgrounds or placeholder links.
+- imageUrl MUST be a direct, high-quality, high-resolution public URL of the official product render or transparent studio shot. IMPORTANT: Use public-domain, open-sharing, or hotlink-safe sources that allow embedding (e.g. from Wikipedia, Wikimedia Commons, Unsplash, or public blogs). Avoid retail site CDNs (e.g. Shopify, Flipkart, Amazon) which block direct embedding on localhost due to CORS/hotlink protection.
 - Return ONLY the JSON, nothing else.`;
 
   for (const modelName of MODELS_TO_TRY) {
@@ -279,11 +279,40 @@ function buildSmartFallback(query: string, brand: string, category: string) {
 
 // ─── Image selector ───────────────────────────────────────────────────────────
 function getImageForProduct(brand: string, category: string): string {
-  if (category === 'audio') return 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80';
-  if (category === 'wearables') return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80';
-  if (category === 'accessories') return 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80';
+  const brandClean = encodeURIComponent(brand || 'generic');
+  const catClean = encodeURIComponent(category || 'electronics');
+  
+  if (category === 'audio') {
+    return `https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'wearables') {
+    return `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'accessories') {
+    return `https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'tv') {
+    return `https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'fridge') {
+    return `https://images.unsplash.com/photo-1571175432267-efb92b4c682b?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'washing-machines') {
+    return `https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'inverters') {
+    return `https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (category === 'laptops') {
+    return `https://images.unsplash.com/photo-1496181130204-7552cc14ac4b?w=800&auto=format&fit=crop&q=80`;
+  }
 
-  if (brand === 'Apple') return 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&auto=format&fit=crop&q=80';
-  if (brand === 'Samsung') return 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=80';
-  return 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80';
+  // Mobile Phones by brand
+  if (brand === 'Apple') {
+    return `https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&auto=format&fit=crop&q=80`;
+  }
+  if (brand === 'Samsung') {
+    return `https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=80`;
+  }
+  return `https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80`;
 }

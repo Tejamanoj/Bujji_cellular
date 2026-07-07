@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -15,6 +15,14 @@ const firebaseConfig = {
 // Prevent duplicate app initialization in Next.js hot reload
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// Initialize Firestore with client-side persistent offline cache support
+export const db = typeof window !== 'undefined'
+  ? initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    })
+  : getFirestore(app);
+
 export const auth = getAuth(app);
 export const storage = getStorage(app);

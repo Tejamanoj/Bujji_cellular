@@ -4,14 +4,18 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldAlert, ArrowRight, Eye, Calendar, DollarSign, Archive } from 'lucide-react';
 import { useOrderStore } from '@/store/orderStore';
+import { useAuthStore } from '@/store/authStore';
 
 export default function OrdersPage() {
   const router = useRouter();
   const { orders, fetchOrders, isLoading } = useOrderStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (user?.id) {
+      fetchOrders(user.id);
+    }
+  }, [user?.id]);
 
   const statusColors = {
     pending: 'border-yellow-500/20 bg-yellow-950/20 text-yellow-400',

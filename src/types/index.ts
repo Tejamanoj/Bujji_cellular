@@ -30,6 +30,11 @@ export interface Product {
   stock: number;
   featured?: boolean;
   flashSale?: boolean;
+  thumbnails?: string[];
+  highlights?: string[];
+  videos?: string[];
+  accessoryIds?: string[];
+  relatedIds?: string[];
 }
 
 export interface User {

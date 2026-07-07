@@ -73,6 +73,23 @@ export async function createOrder(
 
     const ref = await addDoc(collection(db, COLLECTION), orderData);
 
+    // Decrement stock levels for purchased products in Firestore
+    for (const item of items) {
+      try {
+        const productRef = doc(db, 'products', item.product.id);
+        const prodSnap = await getDoc(productRef);
+        if (prodSnap.exists()) {
+          const currentStock = prodSnap.data().stock ?? 0;
+          const newStock = Math.max(0, currentStock - item.quantity);
+          await updateDoc(productRef, {
+            stock: newStock
+          });
+        }
+      } catch (err) {
+        console.error(`❌ Failed to update inventory for product ${item.product.id}:`, err);
+      }
+    }
+
     // Update customer stats
     await updateDoc(doc(db, 'customers', customerId), {
       ordersCount: increment(1),

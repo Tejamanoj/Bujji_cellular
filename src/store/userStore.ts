@@ -15,11 +15,11 @@ interface UserState {
   toggleWishlist: (userId: string, productId: string) => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   
-  addAddress: (userId: string, address: Omit<Address, 'id'>) => Promise<void>;
+  addAddress: (userId: string, address: Omit<Address, 'id'>) => Promise<string>;
   removeAddress: (userId: string, id: string) => Promise<void>;
   updateAddress: (userId: string, id: string, address: Partial<Address>) => Promise<void>;
   
-  addCard: (userId: string, card: Omit<Card, 'id'>) => Promise<void>;
+  addCard: (userId: string, card: Omit<Card, 'id'>) => Promise<string>;
   removeCard: (userId: string, id: string) => Promise<void>;
   
   submitRepairRequest: (
@@ -109,9 +109,10 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   addAddress: async (userId, addr) => {
+    const generatedId = 'addr_' + Math.floor(1000 + Math.random() * 9000);
     const newAddress: Address = {
       ...addr,
-      id: 'addr_' + Math.floor(1000 + Math.random() * 9000),
+      id: generatedId,
     };
     const userDocRef = doc(db, 'customers', userId);
     let updated = [...get().addresses];
@@ -120,9 +121,10 @@ export const useUserStore = create<UserState>((set, get) => ({
       updated = updated.map((a) => ({ ...a, isDefault: false }));
     }
     updated.push(newAddress);
-
+ 
     set({ addresses: updated });
     await updateDoc(userDocRef, { addresses: updated });
+    return generatedId;
   },
 
   removeAddress: async (userId, id) => {
@@ -148,13 +150,15 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   addCard: async (userId, c) => {
+    const generatedId = 'card_' + Math.floor(1000 + Math.random() * 9000);
     const newCard: Card = {
       ...c,
-      id: 'card_' + Math.floor(1000 + Math.random() * 9000),
+      id: generatedId,
     };
     const updated = [...get().cards, newCard];
     set({ cards: updated });
     await updateDoc(doc(db, 'customers', userId), { cards: updated });
+    return generatedId;
   },
 
   removeCard: async (userId, id) => {

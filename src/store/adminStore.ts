@@ -87,6 +87,11 @@ export const useAdminStore = create<AdminState>((set, get) => ({
           stock: data.stock ?? 0,
           featured: data.featured ?? false,
           flashSale: data.flashSale ?? false,
+          thumbnails: data.thumbnails ?? [],
+          highlights: data.highlights ?? [],
+          videos: data.videos ?? [],
+          accessoryIds: data.accessoryIds ?? [],
+          relatedIds: data.relatedIds ?? [],
         };
       });
       set({ products: productsList });

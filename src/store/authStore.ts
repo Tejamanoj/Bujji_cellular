@@ -122,3 +122,70 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearError: () => set({ error: null }),
 }));
+
+// Automatic persistence sync observer in browser environment
+if (typeof window !== 'undefined') {
+  import('firebase/auth').then(({ onAuthStateChanged }) => {
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const email = firebaseUser.email || '';
+        const isAdmin = email === 'admin@bujjicellulars.com' || email === 'admin@bujjicellular.com';
+        
+        if (isAdmin) {
+          useAuthStore.setState({
+            user: {
+              id: firebaseUser.uid,
+              name: 'Administrator',
+              email: email,
+              profileImage: '/images/avatar-placeholder.svg',
+              loyaltyPoints: 0,
+            },
+            token: 'bujji_admin_token',
+            isAuthenticated: true,
+            isAdmin: true,
+            isLoading: false,
+          });
+        } else {
+          // Fetch customer details from firestore
+          const { doc, getDoc } = await import('firebase/firestore');
+          const { db } = await import('@/backend/firebase');
+          try {
+            const docSnap = await getDoc(doc(db, 'customers', firebaseUser.uid));
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              useAuthStore.setState({
+                user: {
+                  id: firebaseUser.uid,
+                  name: data.name || firebaseUser.displayName || 'Client User',
+                  email: email,
+                  profileImage: data.profileImage || '/images/avatar-placeholder.svg',
+                  loyaltyPoints: data.loyaltyPoints ?? 100,
+                },
+                token: 'bujji_user_token',
+                isAuthenticated: true,
+                isAdmin: false,
+                isLoading: false,
+              });
+
+              // Dynamically import and sync customer cart from Firestore
+              import('./cartStore').then(({ useCartStore }) => {
+                useCartStore.getState().syncCart(firebaseUser.uid);
+              });
+            }
+          } catch (e) {
+            console.warn('[authStore] Failed to restore customer profile from firestore:', e);
+          }
+        }
+      } else {
+        useAuthStore.setState({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isAdmin: false,
+          isLoading: false,
+        });
+      }
+    });
+  });
+}
+
