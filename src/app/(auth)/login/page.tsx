@@ -433,9 +433,23 @@ export default function LoginPage() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Admin Email</label>
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Admin Email</label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminId('admin@bujjicellular.com');
+                              setAdminPasskey('Admin@123');
+                            }}
+                            className="text-[9px] uppercase font-mono text-amber-500/70 hover:text-amber-400 hover:underline cursor-pointer"
+                          >
+                            Autofill Demo Admin
+                          </button>
+                        </div>
                         <input
-                          type="text"
+                          type="email"
+                          name="email"
+                          autoComplete="username"
                           required
                           value={adminId}
                           onChange={(e) => setAdminId(e.target.value)}
@@ -448,6 +462,8 @@ export default function LoginPage() {
                         <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Security Passkey</label>
                         <input
                           type="password"
+                          name="password"
+                          autoComplete="current-password"
                           required
                           value={adminPasskey}
                           onChange={(e) => setAdminPasskey(e.target.value)}
