@@ -80,20 +80,46 @@ export default function LoginPage() {
     setTimeout(() => addLog('Decrypting Secure Passkey...'), 2000);
     
     setTimeout(async () => {
-      const success = await login(adminId, adminPasskey);
-      if (success) {
-        addLog('ACCESS GRANTED. Authorization clearance level 4 confirmed.');
-        showToast('Admin authorization successful! Welcome to the Control Panel.', 'success');
+      try {
+        const loginRes = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: adminId, password: adminPasskey })
+        });
+        const loginData = await loginRes.json();
         
-        setTimeout(() => {
+        if (loginRes.ok && loginData.success) {
+          addLog('Credentials verified. Initiating OTP handshake...');
+          
+          // Send OTP
+          const sendOtpRes = await fetch('/api/admin/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: adminId })
+          });
+          const sendOtpData = await sendOtpRes.json();
+          
+          if (sendOtpRes.ok && sendOtpData.success) {
+            addLog('OTP Security Code dispatched to registered email.');
+            showToast('OTP code sent to email!', 'success');
+            setTimeout(() => {
+              setIsVerifying(false);
+              router.push(`/admin/verify-otp?email=${encodeURIComponent(adminId)}`);
+            }, 1000);
+          } else {
+            addLog(`Failed to dispatch OTP: ${sendOtpData.error}`);
+            setIsVerifying(false);
+            showToast(sendOtpData.error || 'Failed to send OTP.', 'error');
+          }
+        } else {
+          addLog(`ACCESS DENIED. Error: ${loginData.error}`);
           setIsVerifying(false);
-          router.push('/admin');
-        }, 1000);
-      } else {
-        const authError = useAuthStore.getState().error || 'Invalid credentials.';
-        addLog(`ACCESS DENIED. Error: ${authError}`);
+          showToast(loginData.error || 'Access denied.', 'error');
+        }
+      } catch (err: any) {
+        addLog(`Connection failed: ${err.message}`);
         setIsVerifying(false);
-        showToast(`Admin authorization failed: ${authError}`, 'error');
+        showToast('Login connection failed.', 'error');
       }
     }, 2800);
   };
@@ -248,15 +274,37 @@ export default function LoginPage() {
     if (!showFaceScan || scanStep !== 4) return;
 
     const t4 = setTimeout(async () => {
-      // Automatically authenticate as admin matching targetEmail
       const targetEmail = adminId.trim() || 'admin@bujjicellular.com';
-      const success = await login(targetEmail, 'Admin@123');
       stopStream();
-      if (success) {
-        showToast(`Face unlocked successfully! Welcome back, ${matchedFaceLabel || 'Administrator'}.`, 'success');
-        router.push('/admin');
-      } else {
-        showToast('Automatic biometric login failed.', 'error');
+      
+      try {
+        const loginRes = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: targetEmail, password: 'Admin@123' })
+        });
+        const loginData = await loginRes.json();
+        
+        if (loginRes.ok && loginData.success) {
+          // Send OTP
+          const sendOtpRes = await fetch('/api/admin/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: targetEmail })
+          });
+          const sendOtpData = await sendOtpRes.json();
+          
+          if (sendOtpRes.ok && sendOtpData.success) {
+            showToast(`Face match verified! OTP sent to registered email.`, 'success');
+            router.push(`/admin/verify-otp?email=${encodeURIComponent(targetEmail)}`);
+          } else {
+            showToast(sendOtpData.error || 'Failed to send OTP after face match.', 'error');
+          }
+        } else {
+          showToast(loginData.error || 'Biometric login identity check failed.', 'error');
+        }
+      } catch (err: any) {
+        showToast('Biometric network request failed.', 'error');
       }
     }, 1000);
 

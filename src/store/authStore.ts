@@ -92,8 +92,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch (e) {
+      console.warn('[authStore] API logout request failed:', e);
+    }
     await adminSignOut();
     set({ user: null, token: null, isAuthenticated: false, error: null, isAdmin: false });
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   },
 
   updateProfileImage: (url) => {

@@ -5,9 +5,45 @@ import {
   signOut as firebaseSignOut,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { User as AppUser } from '@/types';
+import bcrypt from 'bcryptjs';
+
+// ─── Admin Authentication Helpers ─────────────────────────────────────────────
+
+export async function verifyAdminCredentials(email: string, pass: string) {
+  // Query by email
+  const q = query(collection(db, 'admin_users'), where('email', '==', email));
+  const snap = await getDocs(q);
+  if (snap.empty) {
+    return { success: false, error: 'User is not an authorized admin.' };
+  }
+  
+  const adminDoc = snap.docs[0];
+  const data = adminDoc.data();
+  
+  // If bcrypt hash exists, use it
+  if (data.passwordHash) {
+    const match = await bcrypt.compare(pass, data.passwordHash);
+    if (!match) {
+      return { success: false, error: 'Incorrect password.' };
+    }
+    return { success: true, uid: adminDoc.id, role: data.role || 'admin' };
+  }
+  
+  // Otherwise, verify via Firebase Auth and migrate to bcrypt
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    const hash = await bcrypt.hash(pass, 10);
+    await updateDoc(doc(db, 'admin_users', adminDoc.id), {
+      passwordHash: hash
+    });
+    return { success: true, uid: cred.user.uid, role: data.role || 'admin' };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
 
 // ─── Admin Authentication ─────────────────────────────────────────────────────
 

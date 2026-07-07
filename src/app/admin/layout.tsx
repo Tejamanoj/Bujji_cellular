@@ -6,6 +6,7 @@ import { Bell, Search, User, ShieldAlert, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 import { useAdminStore } from '@/store/adminStore';
+import { useAuthStore } from '@/store/authStore';
 
 export default function AdminLayout({
   children,
@@ -13,6 +14,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { syncData } = useAdminStore();
+  const { logout } = useAuthStore();
 
   React.useEffect(() => {
     const unsub = syncData();
@@ -94,6 +96,14 @@ export default function AdminLayout({
                 </span>
               </div>
             </div>
+
+            <button
+              onClick={logout}
+              className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-500/20 transition-all duration-200 cursor-pointer flex items-center justify-center"
+              title="Logout Session"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 
