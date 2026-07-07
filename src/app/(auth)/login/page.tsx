@@ -74,7 +74,6 @@ export default function LoginPage() {
     
     setIsVerifying(true);
     setTerminalLogs([]);
-    setShowOtpStep(false);
     
     setTimeout(() => addLog('Initiating secure handshake...'), 500);
     setTimeout(() => addLog('Validating Administrator Identity...'), 1200);
@@ -83,38 +82,13 @@ export default function LoginPage() {
     setTimeout(async () => {
       const success = await login(adminId, adminPasskey);
       if (success) {
-        // Clear active session until OTP is verified
-        await useAuthStore.getState().logout();
-
-        // Query Firestore for phone configuration
-        let mask = '+91 ••••• ••892';
-        try {
-          const q = query(collection(db, 'admin_users'), where('email', '==', adminId));
-          const snap = await getDocs(q);
-          if (!snap.empty) {
-            const data = snap.docs[0].data();
-            if (data.phone) {
-              const p = data.phone;
-              mask = p.slice(0, 3) + ' ••••• ••' + p.slice(-3);
-            }
-          }
-        } catch (e) {}
-
-        setPhoneMask(mask);
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedOtp(otp);
-
-        addLog(`OTP security handshake initialized. SMS dispatched to registered device ending in: ${mask.slice(-3)}`);
+        addLog('ACCESS GRANTED. Authorization clearance level 4 confirmed.');
+        showToast('Admin authorization successful! Welcome to the Control Panel.', 'success');
         
-        // Show demo notification with OTP
-        showToast(`Demo Mode Code Sent to ${mask}. Security code: ${otp}`, 'info');
-
         setTimeout(() => {
-          setShowOtpStep(true);
           setIsVerifying(false);
-        }, 800);
+          router.push('/admin');
+        }, 1000);
       } else {
         const authError = useAuthStore.getState().error || 'Invalid credentials.';
         addLog(`ACCESS DENIED. Error: ${authError}`);
@@ -122,20 +96,6 @@ export default function LoginPage() {
         showToast(`Admin authorization failed: ${authError}`, 'error');
       }
     }, 2800);
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputOtp.trim()) return;
-
-    if (inputOtp === generatedOtp) {
-      showToast('OTP code verified successfully! Access granted.', 'success');
-      // Login again to establish session in store
-      await login(adminId, adminPasskey);
-      router.push('/admin');
-    } else {
-      showToast('Invalid security OTP verification code.', 'error');
-    }
   };
 
   // Start Biometric Face Unlock
@@ -385,120 +345,77 @@ export default function LoginPage() {
               </div>
             ) : (
               <div className="space-y-5">
-                {showOtpStep ? (
-                  <form onSubmit={handleVerifyOtp} className="space-y-5">
-                    <div className="flex flex-col gap-2 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl text-zinc-300 text-xs font-mono uppercase tracking-wide text-center">
-                      <ShieldCheck className="w-6 h-6 text-amber-400 mx-auto" />
-                      <p className="font-bold text-[10px] tracking-widest text-amber-500">OTP Handshake Required</p>
-                      <p className="text-[9px] text-zinc-550 lowercase tracking-normal font-sans">Verification code dispatched to {phoneMask}</p>
-                    </div>
+                <form onSubmit={handleAdminSubmit} className="space-y-5">
+                  <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-mono uppercase tracking-wide">
+                    <ShieldAlert className="w-5 h-5 flex-shrink-0" />
+                    <p>Warning: Level 4 Security Clearance Required.</p>
+                  </div>
 
-                    <div className="space-y-2 text-center">
-                      <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500 font-bold block">Enter 6-Digit OTP</label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={6}
-                        value={inputOtp}
-                        onChange={(e) => setInputOtp(e.target.value)}
-                        placeholder="••••••"
-                        className="w-full max-w-[180px] mx-auto bg-black/60 border border-zinc-800 text-center text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-[0.5em] text-lg placeholder-zinc-700"
-                      />
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer"
-                    >
-                      <span>Verify OTP Code</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowOtpStep(false);
-                        setInputOtp('');
-                      }}
-                      className="w-full text-center text-[9px] uppercase tracking-wider font-mono text-zinc-650 hover:text-zinc-400 transition-colors cursor-pointer"
-                    >
-                      Back to Passkey Login
-                    </button>
-                  </form>
-                ) : (
-                  <>
-                    <form onSubmit={handleAdminSubmit} className="space-y-5">
-                      <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-mono uppercase tracking-wide">
-                        <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-                        <p>Warning: Level 4 Security Clearance Required.</p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Admin Email</label>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAdminId('admin@bujjicellular.com');
-                              setAdminPasskey('Admin@123');
-                            }}
-                            className="text-[9px] uppercase font-mono text-amber-500/70 hover:text-amber-400 hover:underline cursor-pointer"
-                          >
-                            Autofill Demo Admin
-                          </button>
-                        </div>
-                        <input
-                          type="email"
-                          name="email"
-                          autoComplete="username"
-                          required
-                          value={adminId}
-                          onChange={(e) => setAdminId(e.target.value)}
-                          placeholder="admin@bujjicellular.com"
-                          className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-xs placeholder-zinc-700"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Security Passkey</label>
-                        <input
-                          type="password"
-                          name="password"
-                          autoComplete="current-password"
-                          required
-                          value={adminPasskey}
-                          onChange={(e) => setAdminPasskey(e.target.value)}
-                          placeholder="••••••••••••"
-                          className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-lg placeholder-zinc-700"
-                        />
-                      </div>
-
-                      <button 
-                        type="submit" 
-                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-800 text-amber-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all group overflow-hidden relative cursor-pointer"
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Admin Email</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAdminId('admin@bujjicellular.com');
+                          setAdminPasskey('Admin@123');
+                        }}
+                        className="text-[9px] uppercase font-mono text-amber-500/70 hover:text-amber-400 hover:underline cursor-pointer"
                       >
-                        <div className="absolute inset-0 w-0 bg-amber-500/10 transition-all duration-500 group-hover:w-full" />
-                        <Fingerprint className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        <span>Initiate Security Access</span>
+                        Autofill Demo Admin
                       </button>
-                    </form>
-
-                    {/* 2FA biometric face unlock trigger */}
-                    <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-zinc-900" />
-                      <span className="flex-shrink mx-4 text-[9px] uppercase tracking-wider font-mono text-zinc-650 font-bold">2FA Biometric Channel</span>
-                      <div className="flex-grow border-t border-zinc-900" />
                     </div>
+                    <input
+                      type="email"
+                      name="email"
+                      autoComplete="username"
+                      required
+                      value={adminId}
+                      onChange={(e) => setAdminId(e.target.value)}
+                      placeholder="admin@bujjicellular.com"
+                      className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-xs placeholder-zinc-700"
+                    />
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={handleStartFaceScan}
-                      className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-amber-500/20 to-yellow-500/10 hover:from-amber-400/30 hover:to-yellow-400/20 border border-amber-500/30 rounded-xl text-amber-400 font-mono text-xs uppercase tracking-wider transition-all cursor-pointer font-bold"
-                    >
-                      <Scan className="w-4 h-4 text-amber-500" />
-                      <span>Scan Face to Unlock</span>
-                    </button>
-                  </>
-                )}
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase tracking-widest font-mono text-zinc-500">Security Passkey</label>
+                    <input
+                      type="password"
+                      name="password"
+                      autoComplete="current-password"
+                      required
+                      value={adminPasskey}
+                      onChange={(e) => setAdminPasskey(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-lg placeholder-zinc-700"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-800 text-amber-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all group overflow-hidden relative cursor-pointer"
+                  >
+                    <div className="absolute inset-0 w-0 bg-amber-500/10 transition-all duration-500 group-hover:w-full" />
+                    <Fingerprint className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Initiate Security Access</span>
+                  </button>
+                </form>
+
+                {/* 2FA biometric face unlock trigger */}
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-zinc-900" />
+                  <span className="flex-shrink mx-4 text-[9px] uppercase tracking-wider font-mono text-zinc-650 font-bold">2FA Biometric Channel</span>
+                  <div className="flex-grow border-t border-zinc-900" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleStartFaceScan}
+                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-amber-500/20 to-yellow-500/10 hover:from-amber-400/30 hover:to-yellow-400/20 border border-amber-500/30 rounded-xl text-amber-400 font-mono text-xs uppercase tracking-wider transition-all cursor-pointer font-bold"
+                >
+                  <Scan className="w-4 h-4 text-amber-500" />
+                  <span>Scan Face to Unlock</span>
+                </button>
               </div>
             )}
           </div>
