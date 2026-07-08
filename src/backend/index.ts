@@ -2,7 +2,7 @@
 export { db, auth, storage } from './firebase';
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
-export { adminSignIn, adminSignOut, getCurrentUser, customerSignIn, customerSignUp, verifyAdminCredentials } from './auth';
+export { adminSignIn, adminSignOut, getCurrentUser, customerSignIn, customerSignUp, verifyAdminCredentials, customerSignInWithGoogle } from './auth';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 export {

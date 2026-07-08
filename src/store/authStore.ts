@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User } from '@/types';
-import { customerSignIn, customerSignUp, adminSignIn, adminSignOut } from '@/backend/auth';
+import { customerSignIn, customerSignUp, adminSignIn, adminSignOut, customerSignInWithGoogle } from '@/backend/auth';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/backend/firebase';
 
@@ -12,6 +12,7 @@ interface AuthState {
   error: string | null;
   isAdmin: boolean;
   login: (email: string, password?: string) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   signup: (name: string, email: string, password?: string) => Promise<boolean>;
   logout: () => void;
   updateProfileImage: (url: string) => void;
@@ -69,6 +70,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return true;
     } else {
       set({ error: res.error || 'Invalid email or password.', isLoading: false });
+      return false;
+    }
+  },
+
+  loginWithGoogle: async () => {
+    set({ isLoading: true, error: null });
+    const res = await customerSignInWithGoogle();
+    if (res.success && res.user) {
+      set({
+        user: res.user,
+        token: 'bujji_google_token',
+        isAuthenticated: true,
+        isLoading: false,
+        isAdmin: false
+      });
+      return true;
+    } else {
+      set({ error: res.error || 'Google sign-in failed.', isLoading: false });
       return false;
     }
   },

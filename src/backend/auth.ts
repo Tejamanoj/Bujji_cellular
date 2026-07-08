@@ -4,6 +4,8 @@ import {
   updateProfile,
   signOut as firebaseSignOut,
   User as FirebaseUser,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -111,6 +113,59 @@ export async function adminSignOut() {
  */
 export function getCurrentUser(): FirebaseUser | null {
   return auth.currentUser;
+}
+
+// ─── Google OAuth Sign-In ─────────────────────────────────────────────────────
+
+/**
+ * Sign in a customer using Google OAuth popup.
+ * Creates/updates Firestore user record on first login.
+ */
+export async function customerSignInWithGoogle(): Promise<{ success: boolean; user?: AppUser; error?: string }> {
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    const credential = await signInWithPopup(auth, provider);
+    const firebaseUser = credential.user;
+
+    // Build the app user from Google profile
+    const appUser: AppUser = {
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName || 'Google User',
+      email: firebaseUser.email || '',
+      profileImage: firebaseUser.photoURL || '/images/avatar-placeholder.svg',
+      loyaltyPoints: 0,
+    };
+
+    // Create/update Firestore user record
+    const userRef = doc(db, 'users', firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        name: appUser.name,
+        email: appUser.email,
+        profileImage: appUser.profileImage,
+        loyaltyPoints: 0,
+        provider: 'google',
+        createdAt: serverTimestamp(),
+      });
+    } else {
+      // Update profile image in case it changed in Google
+      await setDoc(userRef, {
+        profileImage: appUser.profileImage,
+        lastLogin: serverTimestamp(),
+      }, { merge: true });
+    }
+
+    return { success: true, user: appUser };
+  } catch (error: any) {
+    if (error.code === 'auth/popup-closed-by-user') {
+      return { success: false, error: 'Sign-in was cancelled.' };
+    }
+    return { success: false, error: error.message };
+  }
 }
 
 // ─── Customer Authentication (Email + Password) ───────────────────────────────
