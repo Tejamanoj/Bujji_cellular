@@ -22,7 +22,7 @@ export default function AdminOrdersPage() {
       case 'delivered':
         return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
       case 'processing':
-        return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        return 'bg-primary-gold/10 text-light-gold border border-primary-gold/20';
       case 'shipped':
         return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
       case 'pending':
@@ -39,7 +39,7 @@ export default function AdminOrdersPage() {
       case 'delivered':
         return <CheckCircle className="w-4 h-4 text-emerald-400" />;
       case 'processing':
-        return <Package className="w-4 h-4 text-amber-400" />;
+        return <Package className="w-4 h-4 text-light-gold" />;
       case 'shipped':
         return <Truck className="w-4 h-4 text-blue-400" />;
       case 'cancelled':
@@ -60,10 +60,10 @@ export default function AdminOrdersPage() {
       accessor: (order) => (
         <button
           onClick={() => toggleExpandOrder(order.id)}
-          className="font-mono font-bold text-zinc-300 hover:text-amber-400 flex items-center gap-1.5 transition-colors text-left"
+          className="font-mono font-bold text-zinc-300 hover:text-light-gold flex items-center gap-1.5 transition-colors text-left"
         >
           {expandedOrderId === order.id ? (
-            <ChevronDown className="w-4 h-4 text-amber-400" />
+            <ChevronDown className="w-4 h-4 text-light-gold" />
           ) : (
             <ChevronRight className="w-4 h-4 text-zinc-500" />
           )}
@@ -95,7 +95,7 @@ export default function AdminOrdersPage() {
     },
     {
       header: 'Total Value',
-      accessor: (order) => <span className="font-mono font-bold text-zinc-200">?{order.total}</span>,
+      accessor: (order) => <span className="font-mono font-bold text-zinc-200">₹{order.total}</span>,
       sortKey: 'total',
     },
     {
@@ -116,7 +116,7 @@ export default function AdminOrdersPage() {
         <select
           value={order.status}
           onChange={(e) => updateOrderStatus(order.id, e.target.value as Order['status'])}
-          className="bg-zinc-900 border border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-amber-400/50 cursor-pointer"
+          className="bg-zinc-900 border border-zinc-800 rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-light-gold/50 cursor-pointer"
         >
           <option value="pending">Pending</option>
           <option value="processing">Processing</option>
@@ -136,14 +136,14 @@ export default function AdminOrdersPage() {
             title="Quick Expand"
           >
             {expandedOrderId === order.id ? (
-              <ChevronDown className="w-4 h-4 text-amber-400" />
+              <ChevronDown className="w-4 h-4 text-light-gold" />
             ) : (
               <Eye className="w-4 h-4" />
             )}
           </button>
           <Link
             href={`/admin/orders/${order.id}`}
-            className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-colors"
+            className="p-2 rounded-xl bg-primary-gold/10 hover:bg-primary-gold/20 text-light-gold border border-primary-gold/20 transition-colors"
             title="Full Order Detail"
           >
             <ExternalLink className="w-4 h-4" />
@@ -159,7 +159,7 @@ export default function AdminOrdersPage() {
     <select
       value={statusFilter}
       onChange={(e) => setStatusFilter(e.target.value)}
-      className="bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs font-semibold text-zinc-300 focus:outline-none focus:border-amber-400/50 cursor-pointer"
+      className="bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs font-semibold text-zinc-300 focus:outline-none focus:border-light-gold/50 cursor-pointer"
     >
       {statuses.map((s) => (
         <option key={s} value={s} className="bg-zinc-950 font-sans">
@@ -216,7 +216,7 @@ export default function AdminOrdersPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Items List */}
                   <div className="md:col-span-2 space-y-3">
-                    <h4 className="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider">Ordered Hardware</h4>
+                    <h4 className="text-xs font-mono font-bold text-light-gold uppercase tracking-wider">Ordered Hardware</h4>
                     <div className="border border-zinc-900 rounded-xl divide-y divide-zinc-900">
                       {order.items.map((item) => (
                         <div key={item.id} className="p-4 flex items-center justify-between gap-4">
@@ -236,7 +236,7 @@ export default function AdminOrdersPage() {
 
                           <div className="text-right font-mono text-xs text-zinc-400">
                             <span>{item.quantity}x</span>
-                            <span className="font-semibold text-zinc-200 ml-2">?{item.product.price}</span>
+                            <span className="font-semibold text-zinc-200 ml-2">₹{item.product.price}</span>
                           </div>
                         </div>
                       ))}
@@ -247,7 +247,7 @@ export default function AdminOrdersPage() {
                   <div className="space-y-5">
                     {/* Shipping Address */}
                     <div className="space-y-2">
-                      <h4 className="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider">Shipment Destination</h4>
+                      <h4 className="text-xs font-mono font-bold text-light-gold uppercase tracking-wider">Shipment Destination</h4>
                       <div className="p-4 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs space-y-1 text-zinc-300">
                         <p className="font-bold text-zinc-100">{order.shippingAddress.name}</p>
                         <p>{order.shippingAddress.street}</p>
@@ -257,11 +257,11 @@ export default function AdminOrdersPage() {
 
                     {/* Totals */}
                     <div className="space-y-2">
-                      <h4 className="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider">Bill Calculation</h4>
+                      <h4 className="text-xs font-mono font-bold text-light-gold uppercase tracking-wider">Bill Calculation</h4>
                       <div className="p-4 bg-zinc-900/40 border border-zinc-900 rounded-xl text-xs space-y-2 text-zinc-400 font-mono">
                         <div className="flex justify-between">
                           <span>Subtotal:</span>
-                          <span className="text-zinc-200">?{order.subtotal}</span>
+                          <span className="text-zinc-200">₹{order.subtotal}</span>
                         </div>
                         {order.discount > 0 && (
                           <div className="flex justify-between text-emerald-400">
@@ -271,11 +271,11 @@ export default function AdminOrdersPage() {
                         )}
                         <div className="flex justify-between">
                           <span>Shipping:</span>
-                          <span className="text-zinc-200">?{order.shipping}</span>
+                          <span className="text-zinc-200">₹{order.shipping}</span>
                         </div>
                         <div className="border-t border-zinc-800/80 pt-2 flex justify-between text-zinc-100 font-bold">
                           <span>Total:</span>
-                          <span className="text-amber-400">?{order.total}</span>
+                          <span className="text-light-gold">₹{order.total}</span>
                         </div>
                       </div>
                     </div>

@@ -159,19 +159,30 @@ if (typeof window !== 'undefined') {
         const isAdmin = email === 'admin@bujjicellulars.com' || email === 'admin@bujjicellular.com';
         
         if (isAdmin) {
-          useAuthStore.setState({
-            user: {
-              id: firebaseUser.uid,
-              name: 'Administrator',
-              email: email,
-              profileImage: '/images/avatar-placeholder.svg',
-              loyaltyPoints: 0,
-            },
-            token: 'bujji_admin_token',
-            isAuthenticated: true,
-            isAdmin: true,
-            isLoading: false,
-          });
+          const isViewingAdmin = window.location.pathname.startsWith('/admin');
+          if (isViewingAdmin) {
+            useAuthStore.setState({
+              user: {
+                id: firebaseUser.uid,
+                name: 'Administrator',
+                email: email,
+                profileImage: '/images/avatar-placeholder.svg',
+                loyaltyPoints: 0,
+              },
+              token: 'bujji_admin_token',
+              isAuthenticated: true,
+              isAdmin: true,
+              isLoading: false,
+            });
+          } else {
+            useAuthStore.setState({
+              user: null,
+              token: null,
+              isAuthenticated: false,
+              isAdmin: false,
+              isLoading: false,
+            });
+          }
         } else {
           // Fetch customer details from firestore
           const { doc, getDoc } = await import('firebase/firestore');

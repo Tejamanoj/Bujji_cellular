@@ -164,16 +164,16 @@ function VerifyOtpContent() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-24 text-left relative min-h-[80vh] flex flex-col justify-center">
-      <div className="relative overflow-hidden p-8 rounded-2xl space-y-6 bg-black border border-amber-500/40 shadow-2xl shadow-yellow-500/5">
+      <div className="relative overflow-hidden p-8 rounded-2xl space-y-6 bg-black border border-primary-gold/40 shadow-2xl shadow-primary-gold/5">
         
         {/* Holographic scanner top border */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-amber-500/20 animate-pulse" />
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[80px] rounded-full" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-primary-gold/20 animate-pulse" />
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-gold/10 blur-[80px] rounded-full" />
         </div>
 
         <div className="text-center space-y-2 relative z-10">
-          <span className="font-display font-black text-lg tracking-wider text-amber-500">
+          <span className="font-display font-black text-lg tracking-wider text-light-gold">
             BUJJI CELLULARS
           </span>
           <h1 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
@@ -184,9 +184,9 @@ function VerifyOtpContent() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl text-zinc-300 text-xs font-mono uppercase tracking-wide text-center">
-          <ShieldCheck className="w-6 h-6 text-amber-400 mx-auto" />
-          <p className="font-bold text-[10px] tracking-widest text-amber-500">OTP Code Dispatched</p>
+        <div className="flex flex-col gap-2 p-4 bg-primary-gold/5 border border-primary-gold/20 rounded-xl text-zinc-300 text-xs font-mono uppercase tracking-wide text-center">
+          <ShieldCheck className="w-6 h-6 text-light-gold mx-auto" />
+          <p className="font-bold text-[10px] tracking-widest text-light-gold">OTP Code Dispatched</p>
           <p className="text-[9px] text-zinc-500 lowercase tracking-normal font-sans">
             A 6-digit access passkey has been sent to:<br />
             <span className="font-bold text-zinc-300 font-mono">{email}</span>
@@ -208,7 +208,7 @@ function VerifyOtpContent() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[10px] uppercase tracking-widest font-mono text-zinc-500 font-bold">
                 <span>Enter 6-Digit OTP</span>
-                <span className={timeLeft < 60 ? 'text-rose-500 font-bold animate-pulse' : 'text-amber-500'}>
+                <span className={timeLeft < 60 ? 'text-rose-500 font-bold animate-pulse' : 'text-light-gold'}>
                   Expires: {formatTime(timeLeft)}
                 </span>
               </div>
@@ -225,7 +225,7 @@ function VerifyOtpContent() {
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     onPaste={index === 0 ? handlePaste : undefined}
                     disabled={loading || timeLeft <= 0}
-                    className="w-12 h-14 bg-black/60 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 text-center text-amber-500 font-mono text-xl font-bold rounded-xl focus:outline-none transition-all disabled:opacity-40"
+                    className="w-12 h-14 bg-black/60 border border-zinc-800 focus:border-light-gold focus:ring-1 focus:ring-light-gold/30 text-center text-light-gold font-mono text-xl font-bold rounded-xl focus:outline-none transition-all disabled:opacity-40"
                   />
                 ))}
               </div>
@@ -242,7 +242,7 @@ function VerifyOtpContent() {
                 type="button"
                 onClick={handleVerify}
                 disabled={loading || otp.join('').length < 6 || timeLeft <= 0}
-                className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-900 disabled:border-zinc-800 disabled:text-zinc-650 text-black font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-lg shadow-amber-500/10 disabled:shadow-none"
+                className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-gradient-to-br from-accent-gold to-light-gold text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-lg shadow-primary-gold/10 disabled:shadow-none"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -265,7 +265,7 @@ function VerifyOtpContent() {
                   type="button"
                   onClick={handleResend}
                   disabled={resending || cooldown > 0}
-                  className="flex items-center gap-1.5 hover:text-amber-400 transition-colors disabled:opacity-50 disabled:hover:text-zinc-550 cursor-pointer"
+                  className="flex items-center gap-1.5 hover:text-blue-400 transition-colors disabled:opacity-50 disabled:hover:text-zinc-550 cursor-pointer"
                 >
                   {resending ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -290,7 +290,7 @@ export default function AdminVerifyOtpPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-black text-zinc-400">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-light-gold" />
       </div>
     }>
       <VerifyOtpContent />

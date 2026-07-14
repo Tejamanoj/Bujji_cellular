@@ -50,7 +50,7 @@ export default function ProductsPage() {
         <div>
           <p className="text-[10px] text-primary-gold font-bold tracking-[0.25em] uppercase mb-2">Bujji Cellulars</p>
           <h1 className="font-display font-black text-4xl sm:text-5xl uppercase tracking-tight text-white">Catalog</h1>
-          <p className="text-sm text-zinc-500 mt-2">Custom-engineered luxury smartphones and gold-tier accessories.</p>
+          <p className="text-sm text-zinc-500 mt-2">Premium brand smartphones, high-quality audio gear, and top-tier accessories.</p>
         </div>
         
         {/* Search / view options */}

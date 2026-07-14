@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -23,9 +23,9 @@ export function StatsCard({
   const isPositive = trend >= 0;
 
   return (
-    <div className="relative overflow-hidden border border-zinc-800/80 bg-gradient-to-br from-zinc-950 to-zinc-900/90 rounded-2xl p-6 transition-all duration-300 hover:border-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/[0.02] group">
+    <div className="relative overflow-hidden border border-zinc-800/80 bg-gradient-to-br from-zinc-950 to-zinc-900/90 rounded-2xl p-6 transition-all duration-300 hover:border-accent-gold/30 hover:shadow-xl hover:shadow-primary-gold/[0.02] group">
       {/* Background Glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl transition-opacity duration-300 group-hover:bg-amber-500/10 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary-gold/5 rounded-full blur-3xl transition-opacity duration-300 group-hover:bg-primary-gold/10 pointer-events-none" />
 
       <div className="flex justify-between items-start">
         <div className="space-y-2">
@@ -41,7 +41,7 @@ export function StatsCard({
           )}
         </div>
 
-        <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800/80 text-amber-400 group-hover:text-black group-hover:bg-gradient-to-br group-hover:from-amber-400 group-hover:to-yellow-500 transition-all duration-300">
+        <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800/80 text-light-gold group-hover:text-white group-hover:bg-gradient-to-br group-hover:from-accent-gold group-hover:to-light-gold transition-all duration-300">
           <Icon className="w-5 h-5" />
         </div>
       </div>

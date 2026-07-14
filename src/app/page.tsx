@@ -14,9 +14,9 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
    Marquee ticker
 ───────────────────────────────────────── */
 const MARQUEE_ITEMS = [
-  '24K Gold Plating', '✦', 'Premium Devices', '✦', 'Expert Repairs', '✦',
-  'Solid-State Battery', '✦', 'IPX8 Certified', '✦', 'Holographic Display', '✦',
-  'Fast Dispatch', '✦', 'Luxury Service', '✦',
+  'Premium Brands', '✦', 'Premium Devices', '✦', 'Expert Repairs', '✦',
+  'Original Warranty', '✦', 'IPX8 Certified', '✦', 'AMOLED Display', '✦',
+  'Fast Dispatch', '✦', 'Premium Support', '✦',
 ];
 
 function MarqueeTicker() {
@@ -152,9 +152,9 @@ export default function HomePage() {
               <motion.h1
                 className="font-display font-black leading-[0.93] tracking-tight text-[clamp(3.5rem,9vw,7.5rem)] text-white"
               >
-                Gold
+                Next
                 <br />
-                <span className="text-hero-gradient">Standard.</span>
+                <span className="text-hero-gradient">Level.</span>
                 <br />
                 <span className="text-zinc-600">Mobile.</span>
               </motion.h1>
@@ -162,7 +162,7 @@ export default function HomePage() {
 
             <div className="max-w-md space-y-6">
               <p className="text-zinc-400 text-base leading-relaxed">
-                Bujji Cellulars crafts luxury smartphones with 24K gold finishes, solid-state batteries & holographic displays — made for those who demand more.
+                Bujji Cellulars sells premium brand smartphones, offering expert repair services, high-quality audio gear, and charging accessories.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -270,7 +270,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: <Award size={22} />, title: '2-Year Warranty', desc: 'Full luxury coverage on every device we sell.' },
+            { icon: <Award size={22} />, title: '2-Year Warranty', desc: 'Full warranty coverage on every device we sell.' },
             { icon: <Zap size={22} />, title: 'Ships in 24h', desc: 'Same-day dispatch with express delivery options.' },
             { icon: <Shield size={22} />, title: '100% Secure', desc: '256-bit encrypted checkout. Your data is safe.' },
             { icon: <Cpu size={22} />, title: 'Expert Repairs', desc: 'Certified technicians for precision repair work.' },
@@ -343,7 +343,7 @@ export default function HomePage() {
               transition={{ delay: 0.2 }}
               className="text-zinc-500 text-sm max-w-md mx-auto mb-10 leading-relaxed"
             >
-              50+ premium devices. Custom repairs. Luxury accessories. Gold-tier service. Only at Bujji Cellulars.
+              50+ premium devices. Expert repairs. Premium accessories. Top-tier support. Only at Bujji Cellulars.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

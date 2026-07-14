@@ -48,12 +48,12 @@ export function AdminSidebar() {
       {/* Sidebar Header */}
       <div className="flex items-center justify-between h-20 px-4 border-b border-white/5 bg-black/40">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-            <ShieldCheck className="w-6 h-6 text-black" />
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-accent-gold to-light-gold flex items-center justify-center shadow-lg shadow-accent-gold/20">
+            <ShieldCheck className="w-6 h-6 text-white" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500 tracking-wider text-sm font-sans uppercase">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold tracking-wider text-sm font-sans uppercase">
                 Bujji Admin
               </span>
               <span className="text-[10px] text-zinc-500 tracking-widest font-mono">
@@ -76,17 +76,17 @@ export function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-4 px-3 py-3.5 rounded-xl transition-all duration-200 group relative ${
                 isActive
-                  ? 'bg-gradient-to-r from-amber-500/10 to-yellow-600/5 text-amber-400 border border-yellow-500/20 font-medium'
+                  ? 'bg-gradient-to-r from-primary-gold/10 to-accent-gold/5 text-light-gold border border-primary-gold/20 font-medium'
                   : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200 border border-transparent'
               }`}
             >
               {/* Active Indicator Line */}
               {isActive && (
-                <div className="absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-md bg-amber-400" />
+                <div className="absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-md bg-light-gold" />
               )}
               
               <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                isActive ? 'text-amber-400' : 'text-zinc-400 group-hover:text-amber-400'
+                isActive ? 'text-light-gold' : 'text-zinc-400 group-hover:text-light-gold'
               }`} />
 
               {!collapsed && <span className="text-sm tracking-wide">{item.name}</span>}

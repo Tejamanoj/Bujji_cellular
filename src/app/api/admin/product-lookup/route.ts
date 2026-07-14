@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+export const dynamic = 'force-dynamic';
+
 // ─── Fallback database (instant, no API needed) ───────────────────────────────
 const FALLBACK_DB: { [key: string]: any } = {
   'redmi note 9 pro': {

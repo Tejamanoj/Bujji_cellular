@@ -321,8 +321,8 @@ export default function AdminSettingsPage() {
           
           {/* Admin Account Credentials & Security */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5 text-left">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-light-gold" />
               Admin Credentials & Security
             </h3>
 
@@ -382,14 +382,14 @@ export default function AdminSettingsPage() {
                 type="checkbox"
                 checked={faceAuthEnabled}
                 onChange={(e) => setFaceAuthEnabled(e.target.checked)}
-                className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+                className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-light-gold focus:ring-light-gold/20 focus:ring-offset-0 accent-light-gold cursor-pointer"
               />
             </div>
           </div>
 
           {/* General Metadata */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2 flex items-center gap-2">
               <Mail className="w-4 h-4 text-zinc-500" />
               General Metadata
             </h3>
@@ -417,14 +417,14 @@ export default function AdminSettingsPage() {
 
           {/* TWO-STEP BIOMETRIC FACE REGISTRATION PANEL */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5 text-left">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-blue-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-blue-500" />
               Two-Step Face Verification Keys (Max 2 Faces)
             </h3>
 
             {loadingBiometrics ? (
               <div className="flex items-center gap-2 py-4 text-zinc-550 text-xs font-mono">
-                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                 <span>Syncing registered biometrics keys...</span>
               </div>
             ) : (
@@ -432,7 +432,7 @@ export default function AdminSettingsPage() {
                 {/* Registered List */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {biometrics.map((key, idx) => (
-                    <div key={key.id} className="p-4 bg-zinc-900/30 border border-zinc-850 rounded-2xl flex justify-between items-center h-28 hover:border-amber-500/10 transition-colors">
+                    <div key={key.id} className="p-4 bg-zinc-900/30 border border-zinc-850 rounded-2xl flex justify-between items-center h-28 hover:border-primary-gold/10 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-800 bg-black flex items-center justify-center p-0.5 shrink-0">
                           <img src={key.snapshotUrl} alt="face key" className="w-full h-full object-cover rounded-full" />
@@ -469,7 +469,7 @@ export default function AdminSettingsPage() {
                     type="button"
                     disabled={biometrics.length >= 2}
                     onClick={startCamera}
-                    className="px-5 py-3 bg-zinc-900 border border-zinc-850 hover:border-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 text-amber-500 text-xs font-mono font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-3 bg-zinc-900 border border-zinc-850 hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 text-blue-500 text-xs font-mono font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Camera size={14} />
                     {biometrics.length >= 2 ? 'Biometric Slots Full (Max 2)' : 'Register New Face Unlock'}
@@ -481,7 +481,7 @@ export default function AdminSettingsPage() {
 
           {/* Shipping and Taxes */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-blue-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
               <Truck className="w-4 h-4 text-zinc-500" />
               Taxes & Logistic Config
             </h3>
@@ -520,7 +520,7 @@ export default function AdminSettingsPage() {
                 type="checkbox"
                 checked={allowPromo}
                 onChange={(e) => setAllowPromo(e.target.checked)}
-                className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+                className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-blue-500 focus:ring-blue-500/20 focus:ring-offset-0 accent-blue-500 cursor-pointer"
               />
             </div>
           </div>
@@ -529,7 +529,7 @@ export default function AdminSettingsPage() {
         {/* Database & Operations panel */}
         <div className="sticky top-28 space-y-6">
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-4">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-blue-500 border-b border-zinc-900 pb-2 flex items-center gap-2">
               <Database className="w-4 h-4 text-zinc-500" />
               Backup & Seeds
             </h3>
@@ -552,7 +552,7 @@ export default function AdminSettingsPage() {
           {/* Submit floating button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-br from-amber-400 to-yellow-500 font-bold text-xs text-black rounded-xl hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-br from-blue-600 to-blue-500 font-bold text-xs text-white rounded-xl hover:shadow-lg transition-all"
           >
             <Save className="w-4 h-4" />
             Save Configurations
@@ -563,8 +563,8 @@ export default function AdminSettingsPage() {
       {/* ── BIOMETRIC REGISTER NEW FACE MODAL ── */}
       {showScanModal && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-          <div className="relative w-full max-w-sm border border-amber-500/30 bg-zinc-950 p-6 rounded-3xl space-y-5 text-center shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(rgba(245,158,11,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+          <div className="relative w-full max-w-sm border border-blue-500/30 bg-zinc-950 p-6 rounded-3xl space-y-5 text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
             
             <button
               type="button"
@@ -575,12 +575,12 @@ export default function AdminSettingsPage() {
             </button>
 
             <div className="space-y-1">
-              <h3 className="font-mono text-xs uppercase font-bold text-amber-500 tracking-widest">Biometric Face Registration</h3>
+              <h3 className="font-mono text-xs uppercase font-bold text-blue-500 tracking-widest">Biometric Face Registration</h3>
               <p className="text-[9px] text-zinc-500 font-mono uppercase tracking-wide">Register Face Slot {biometrics.length + 1}</p>
             </div>
 
             {/* Video Viewport */}
-            <div className="w-44 h-44 rounded-full border border-amber-500/30 p-1 mx-auto relative overflow-hidden bg-zinc-900 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.08)]">
+            <div className="w-44 h-44 rounded-full border border-blue-500/30 p-1 mx-auto relative overflow-hidden bg-zinc-900 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.08)]">
               {capturedSnapshot ? (
                 <img src={capturedSnapshot} alt="snapshot" className="w-full h-full object-cover rounded-full scale-x-[-1]" />
               ) : stream ? (
@@ -600,7 +600,7 @@ export default function AdminSettingsPage() {
 
               {/* Countdown text overlay */}
               {countdown !== null && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-4xl font-mono font-black text-amber-400">
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-4xl font-mono font-black text-light-gold">
                   {countdown}
                 </div>
               )}
@@ -617,7 +617,7 @@ export default function AdminSettingsPage() {
                   type="button"
                   onClick={captureSnapshot}
                   disabled={countdown !== null || !stream}
-                  className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-xs font-bold text-black rounded-xl"
+                  className="w-full py-2.5 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl"
                 >
                   {countdown !== null ? 'Preparing...' : 'Capture Snapshot'}
                 </button>
@@ -650,7 +650,7 @@ export default function AdminSettingsPage() {
                     type="button"
                     disabled={!scanLabel.trim()}
                     onClick={saveBiometricFace}
-                    className="flex-1 py-2 bg-amber-500 hover:bg-amber-400 text-xs font-bold text-black rounded-xl disabled:opacity-50"
+                    className="flex-1 py-2 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl disabled:opacity-50"
                   >
                     Save Face Key
                   </button>

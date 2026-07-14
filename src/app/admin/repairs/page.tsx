@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useAdminStore } from '@/store/adminStore';
@@ -23,7 +23,7 @@ export default function AdminRepairsPage() {
       case 'repairing':
         return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
       case 'inspecting':
-        return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        return 'bg-primary-gold/10 text-light-gold border border-primary-gold/20';
       case 'received':
         return 'bg-zinc-350 bg-zinc-700/30 text-zinc-300 border border-zinc-700/40';
       case 'submitted':
@@ -235,7 +235,7 @@ export default function AdminRepairsPage() {
                           key={msg.id}
                           className={`max-w-[80%] rounded-xl px-3.5 py-2 text-xs space-y-0.5 ${
                             isAdmin
-                              ? 'bg-amber-500/10 text-amber-300 border border-yellow-500/10 self-end'
+                              ? 'bg-primary-gold/10 text-light-gold border border-primary-gold/10 self-end'
                               : 'bg-zinc-800/80 text-zinc-300 self-start'
                           }`}
                         >
@@ -266,7 +266,7 @@ export default function AdminRepairsPage() {
                   />
                   <button
                     type="submit"
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 text-black hover:shadow-lg transition-all"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-accent-gold to-light-gold text-white hover:shadow-lg transition-all"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>

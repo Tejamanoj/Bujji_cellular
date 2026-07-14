@@ -325,7 +325,7 @@ export default function AdminEditProductPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-light-gold" />
         <span className="text-xs text-zinc-500 font-mono uppercase tracking-widest">Loading model data...</span>
       </div>
     );
@@ -338,7 +338,7 @@ export default function AdminEditProductPage() {
         <div className="space-y-1">
           <Link
             href="/admin/products"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-amber-400 font-mono transition-colors uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-light-gold font-mono transition-colors uppercase tracking-wider"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Catalog
@@ -347,14 +347,14 @@ export default function AdminEditProductPage() {
             Edit Catalog Listing
           </h1>
           <p className="text-xs text-zinc-550 font-mono uppercase tracking-wide">
-            Refining model database record: <span className="text-amber-500 font-bold">{originalProduct?.id}</span>
+            Refining model database record: <span className="text-light-gold font-bold">{originalProduct?.id}</span>
           </p>
         </div>
 
         {/* Action Toggle controls */}
         <div className="flex gap-4 items-center bg-zinc-950 p-3 rounded-2xl border border-zinc-900">
           <label className="flex items-center gap-2 cursor-pointer group">
-            <div className={`w-9 h-5 rounded-full transition-colors relative ${featured ? 'bg-amber-500' : 'bg-zinc-800'}`}>
+            <div className={`w-9 h-5 rounded-full transition-colors relative ${featured ? 'bg-light-gold' : 'bg-zinc-800'}`}>
               <input
                 type="checkbox"
                 checked={featured}
@@ -385,8 +385,8 @@ export default function AdminEditProductPage() {
         {/* Editor Form Column */}
         <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
           {/* Smart Lookup */}
-          <div className="border border-amber-500/20 bg-amber-500/[0.03] p-6 rounded-2xl space-y-3">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
+          <div className="border border-primary-gold/20 bg-primary-gold/[0.03] p-6 rounded-2xl space-y-3">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" />
               Smart Re-Lookup
             </h3>
@@ -400,13 +400,13 @@ export default function AdminEditProductPage() {
                 onChange={(e) => setLookupQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLookup(); } }}
                 placeholder="e.g. Samsung Galaxy S24 Ultra"
-                className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans"
+                className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-sans"
               />
               <button
                 type="button"
                 onClick={handleLookup}
                 disabled={lookupLoading}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-black flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap"
+                className="px-4 py-2.5 bg-gradient-to-br from-blue-600 to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap"
               >
                 {lookupLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                 {lookupLoading ? 'Searching...' : 'Re-fetch'}
@@ -415,7 +415,7 @@ export default function AdminEditProductPage() {
             {lookupError && <p className="text-xs text-rose-400 font-mono">{lookupError}</p>}
             {lookupMeta && (
               <p className="text-xs text-zinc-550 font-mono">
-                Price confidence: <span className="text-amber-400">{lookupMeta.confidence || 'n/a'}</span>
+                Price confidence: <span className="text-light-gold">{lookupMeta.confidence || 'n/a'}</span>
                 {lookupMeta.note ? ` — ${lookupMeta.note}` : ''} · Review before saving.
               </p>
             )}
@@ -423,7 +423,7 @@ export default function AdminEditProductPage() {
 
           {/* General specs */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2">
               General Properties
             </h3>
 
@@ -434,7 +434,7 @@ export default function AdminEditProductPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40"
               />
             </div>
 
@@ -447,7 +447,7 @@ export default function AdminEditProductPage() {
                   onChange={(e) => setPrice(Number(e.target.value))}
                   required
                   min="1"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 font-mono"
                 />
               </div>
               <div className="space-y-1">
@@ -458,7 +458,7 @@ export default function AdminEditProductPage() {
                   onChange={(e) => setOriginalPrice(e.target.value ? Number(e.target.value) : undefined)}
                   placeholder="Leave blank if no discount"
                   min="1"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 font-mono"
                 />
               </div>
             </div>
@@ -469,7 +469,7 @@ export default function AdminEditProductPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 cursor-pointer"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 cursor-pointer"
                 >
                   <option value="mobile-phones">Mobile Phones</option>
                   <option value="tv">Smart Television</option>
@@ -488,7 +488,7 @@ export default function AdminEditProductPage() {
                   type="text"
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40"
                 />
               </div>
               <div className="space-y-1">
@@ -499,7 +499,7 @@ export default function AdminEditProductPage() {
                   onChange={(e) => setStock(Number(e.target.value))}
                   required
                   min="0"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 font-mono"
                 />
               </div>
             </div>
@@ -511,14 +511,14 @@ export default function AdminEditProductPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
                 required
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 resize-none"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 resize-none"
               />
             </div>
           </div>
 
           {/* Media & Options */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-6">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2">
               Visual Options & Image Storage
             </h3>
 
@@ -526,7 +526,7 @@ export default function AdminEditProductPage() {
             <div className="space-y-3">
               <label className="text-xs text-zinc-400 font-mono block">Product Images / Gallery</label>
               
-              <div className="border border-dashed border-zinc-800 hover:border-amber-400/40 bg-zinc-900/20 rounded-2xl p-6 flex flex-col items-center justify-center relative cursor-pointer group transition-colors">
+              <div className="border border-dashed border-zinc-800 hover:border-light-gold/40 bg-zinc-900/20 rounded-2xl p-6 flex flex-col items-center justify-center relative cursor-pointer group transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -534,7 +534,7 @@ export default function AdminEditProductPage() {
                   disabled={uploadingImage}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <UploadCloud className="w-8 h-8 text-zinc-550 group-hover:text-amber-400 transition-colors mb-2" />
+                <UploadCloud className="w-8 h-8 text-zinc-550 group-hover:text-light-gold transition-colors mb-2" />
                 <span className="text-xs text-zinc-400">
                   {uploadingImage ? 'Uploading file to cloud storage...' : 'Drag & drop or click to upload local media'}
                 </span>
@@ -617,7 +617,7 @@ export default function AdminEditProductPage() {
                         key={name}
                         type="button"
                         onClick={() => handleAddColor(guessHexFromName(name))}
-                        className="flex items-center gap-1.5 bg-zinc-900/60 border border-dashed border-zinc-700 hover:border-amber-400/50 rounded-full pl-1 pr-2.5 py-1 text-[10px] text-zinc-400 hover:text-amber-300 transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 bg-zinc-900/60 border border-dashed border-zinc-700 hover:border-light-gold/50 rounded-full pl-1 pr-2.5 py-1 text-[10px] text-zinc-400 hover:text-light-gold transition-colors cursor-pointer"
                       >
                         <span className="w-3.5 h-3.5 rounded-full border border-white/10" style={{ backgroundColor: guessHexFromName(name) }} />
                         {name}
@@ -696,7 +696,7 @@ export default function AdminEditProductPage() {
               <div className="space-y-2">
                 {videos.map((v, i) => (
                   <div key={i} className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800 rounded-xl px-4 py-2 text-xs font-mono text-zinc-450">
-                    <span className="truncate flex items-center gap-1.5"><Play className="w-3 h-3 text-amber-500" /> {v}</span>
+                    <span className="truncate flex items-center gap-1.5"><Play className="w-3 h-3 text-light-gold" /> {v}</span>
                     <button type="button" onClick={() => handleRemoveVideo(v)} className="text-zinc-650 hover:text-rose-400">
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -723,7 +723,7 @@ export default function AdminEditProductPage() {
 
             {/* Cross-Sell and Relations */}
             <div className="space-y-4 pt-4 border-t border-zinc-900">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">Cross-sell Relationships</h4>
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold">Cross-sell Relationships</h4>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -735,7 +735,7 @@ export default function AdminEditProductPage() {
                           type="checkbox"
                           checked={selectedAccessories.includes(p.id)}
                           onChange={() => handleToggleAccessory(p.id)}
-                          className="rounded border-zinc-800 bg-zinc-900 text-amber-400 focus:ring-0 focus:ring-offset-0"
+                          className="rounded border-zinc-800 bg-zinc-900 text-light-gold focus:ring-0 focus:ring-offset-0"
                         />
                         {p.name}
                       </label>
@@ -755,7 +755,7 @@ export default function AdminEditProductPage() {
                           type="checkbox"
                           checked={selectedRelated.includes(p.id)}
                           onChange={() => handleToggleRelated(p.id)}
-                          className="rounded border-zinc-800 bg-zinc-900 text-amber-400 focus:ring-0 focus:ring-offset-0"
+                          className="rounded border-zinc-800 bg-zinc-900 text-light-gold focus:ring-0 focus:ring-offset-0"
                         />
                         {p.name}
                       </label>
@@ -818,7 +818,6 @@ export default function AdminEditProductPage() {
             </div>
           </div>
 
-          {/* Action CTAs */}
           <div className="flex gap-3 justify-end">
             <Link
               href="/admin/products"
@@ -829,7 +828,7 @@ export default function AdminEditProductPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-gradient-to-br from-amber-400 to-yellow-500 text-xs font-bold text-black rounded-xl hover:shadow-lg disabled:opacity-50 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl hover:shadow-lg disabled:opacity-50 transition-all flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? 'Saving...' : 'Apply Update'}
@@ -841,13 +840,13 @@ export default function AdminEditProductPage() {
         <div className="sticky top-28 space-y-4">
           <div className="flex justify-between items-center text-xs font-mono text-zinc-500 uppercase tracking-widest">
             <span>Device Preview</span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-amber-500">
+            <span className="inline-flex items-center gap-1 text-[10px] text-light-gold">
               <Eye className="w-3 h-3 animate-pulse" /> Live Card
             </span>
           </div>
 
-          <div className="border border-zinc-850 bg-gradient-to-br from-zinc-950 to-zinc-900/90 rounded-3xl p-5 shadow-2xl space-y-5 relative overflow-hidden group text-left">
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl" />
+          <div className="border border-zinc-855 bg-gradient-to-br from-zinc-950 to-zinc-900/90 rounded-3xl p-5 shadow-2xl space-y-5 relative overflow-hidden group text-left">
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary-gold/5 rounded-full blur-3xl" />
             
             <div className="aspect-[4/3] w-full rounded-2xl bg-zinc-900 border border-zinc-800/80 overflow-hidden flex items-center justify-center relative p-2">
               {images[0] ? (
@@ -865,7 +864,7 @@ export default function AdminEditProductPage() {
                   <span>Awaiting media link...</span>
                 </div>
               )}
-              <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[9px] font-mono tracking-widest text-amber-400 border border-yellow-500/25 uppercase">
+              <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[9px] font-mono tracking-widest text-light-gold border border-primary-gold/25 uppercase">
                 {category}
               </span>
             </div>
@@ -876,12 +875,12 @@ export default function AdminEditProductPage() {
                   {brand || 'APPLE'} BRAND ARTIFACT
                 </span>
                 <h4 className="text-lg font-bold text-zinc-100 tracking-tight leading-snug truncate">
-                  {name || 'Untethered Gold Artifact'}
+                  {name || 'Untethered Blue Artifact'}
                 </h4>
               </div>
 
               <div className="flex items-baseline gap-2 font-mono">
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
+                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">
                   ₹{price.toLocaleString('en-IN')}
                 </span>
                 {originalPrice && (

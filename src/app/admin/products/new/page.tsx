@@ -290,7 +290,7 @@ export default function AdminNewProductPage() {
       <div className="space-y-2">
         <Link
           href="/admin/products"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-amber-400 font-mono transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-light-gold font-mono transition-colors uppercase tracking-wider"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Catalog
@@ -307,8 +307,8 @@ export default function AdminNewProductPage() {
         {/* Editor Form Column */}
         <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
           {/* Smart Lookup */}
-          <div className="border border-amber-500/20 bg-amber-500/[0.03] p-6 rounded-2xl space-y-3">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
+          <div className="border border-primary-gold/20 bg-primary-gold/[0.03] p-6 rounded-2xl space-y-3">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" />
               Smart Lookup
             </h3>
@@ -322,13 +322,13 @@ export default function AdminNewProductPage() {
                 onChange={(e) => setLookupQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLookup(); } }}
                 placeholder="e.g. Redmi Note 9 Pro, iPhone 15 Pro, Samsung S24"
-                className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans"
+                className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-light-gold/40 font-sans"
               />
               <button
                 type="button"
                 onClick={handleLookup}
                 disabled={lookupLoading}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-black flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-4 py-2.5 bg-gradient-to-br from-amber-500 to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-colors cursor-pointer"
               >
                 {lookupLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                 {lookupLoading ? 'Searching...' : 'Auto-fill'}
@@ -337,7 +337,7 @@ export default function AdminNewProductPage() {
             {lookupError && <p className="text-xs text-rose-400 font-mono">{lookupError}</p>}
             {lookupMeta && (
               <p className="text-xs text-zinc-500 font-mono">
-                Price confidence: <span className="text-amber-400">{lookupMeta.confidence || 'n/a'}</span>
+                Price confidence: <span className="text-amber-500">{lookupMeta.confidence || 'n/a'}</span>
                 {lookupMeta.note ? ` — ${lookupMeta.note}` : ''} · Please review before publishing.
               </p>
             )}
@@ -345,7 +345,7 @@ export default function AdminNewProductPage() {
 
           {/* General Specs Block */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2">
               General Properties
             </h3>
 
@@ -357,7 +357,7 @@ export default function AdminNewProductPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Vivo Y17, iPhone 15 Pro"
                 required
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-sans"
               />
             </div>
 
@@ -371,7 +371,7 @@ export default function AdminNewProductPage() {
                   placeholder="29900"
                   required
                   min="1"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-mono"
                 />
               </div>
 
@@ -383,7 +383,7 @@ export default function AdminNewProductPage() {
                   onChange={(e) => setOriginalPrice(e.target.value ? Number(e.target.value) : undefined)}
                   placeholder="e.g. 39900"
                   min="1"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-mono"
                 />
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function AdminNewProductPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans cursor-pointer"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-sans cursor-pointer"
                 >
                   <option value="mobile-phones">Mobile Phones</option>
                   <option value="tv">Smart Television</option>
@@ -414,7 +414,7 @@ export default function AdminNewProductPage() {
                   type="text"
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-sans"
                 />
               </div>
 
@@ -427,7 +427,7 @@ export default function AdminNewProductPage() {
                   placeholder="10"
                   required
                   min="0"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-mono"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-mono"
                 />
               </div>
             </div>
@@ -440,14 +440,14 @@ export default function AdminNewProductPage() {
                 placeholder="Write a descriptive brief details about this product..."
                 rows={4}
                 required
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-amber-400/40 font-sans resize-none"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-blue-500/40 font-sans resize-none"
               />
             </div>
           </div>
 
           {/* Media & Options Block */}
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-6">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 border-b border-zinc-900 pb-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold border-b border-zinc-900 pb-2">
               Visual Options & Image Storage
             </h3>
 
@@ -456,7 +456,7 @@ export default function AdminNewProductPage() {
               <label className="text-xs text-zinc-400 font-mono block">Product Images / Gallery</label>
               
               {/* Drag-drop box */}
-              <div className="border border-dashed border-zinc-800 hover:border-amber-400/40 bg-zinc-900/20 rounded-2xl p-6 flex flex-col items-center justify-center relative cursor-pointer group transition-colors">
+              <div className="border border-dashed border-zinc-800 hover:border-blue-500/40 bg-zinc-900/20 rounded-2xl p-6 flex flex-col items-center justify-center relative cursor-pointer group transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -464,7 +464,7 @@ export default function AdminNewProductPage() {
                   disabled={uploadingImage}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <UploadCloud className="w-8 h-8 text-zinc-550 group-hover:text-amber-400 transition-colors mb-2" />
+                <UploadCloud className="w-8 h-8 text-zinc-550 group-hover:text-blue-500 transition-colors mb-2" />
                 <span className="text-xs text-zinc-400">
                   {uploadingImage ? 'Uploading file to cloud storage...' : 'Drag & drop or click to upload local media'}
                 </span>
@@ -478,7 +478,7 @@ export default function AdminNewProductPage() {
                   placeholder="Or paste external image URL..."
                   value={customImageUrl}
                   onChange={(e) => setCustomImageUrl(e.target.value)}
-                  className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-100 focus:outline-none"
+                  className="flex-grow bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-100 focus:outline-none focus:border-blue-500/40"
                 />
                 <button
                   type="button"
@@ -762,7 +762,7 @@ export default function AdminNewProductPage() {
             </Link>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-gradient-to-br from-amber-400 to-yellow-500 text-xs font-bold text-black rounded-xl hover:shadow-lg transition-all cursor-pointer"
+              className="px-6 py-2.5 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl hover:shadow-lg transition-all cursor-pointer"
             >
               Forge Record
             </button>
@@ -773,14 +773,14 @@ export default function AdminNewProductPage() {
         <div className="sticky top-28 space-y-4">
           <div className="flex justify-between items-center text-xs font-mono text-zinc-500 uppercase tracking-widest">
             <span>Device Preview</span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-amber-500">
+            <span className="inline-flex items-center gap-1 text-[10px] text-light-gold">
               <Eye className="w-3 h-3 animate-pulse" /> Interactive
             </span>
           </div>
 
           <div className="border border-zinc-850 bg-gradient-to-br from-zinc-950 to-zinc-900/90 rounded-3xl p-5 shadow-2xl space-y-5 relative overflow-hidden group">
             {/* Ambient Background blur */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl" />
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary-gold/5 rounded-full blur-3xl" />
             
             {/* Card Media */}
             <div className="aspect-[4/3] w-full rounded-2xl bg-zinc-900 border border-zinc-800/80 overflow-hidden flex items-center justify-center relative p-2">
@@ -800,7 +800,7 @@ export default function AdminNewProductPage() {
                 </div>
               )}
 
-              <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[9px] font-mono tracking-widest text-amber-400 border border-yellow-500/25 uppercase">
+              <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[9px] font-mono tracking-widest text-light-gold border border-primary-gold/25 uppercase">
                 {category}
               </span>
             </div>
@@ -812,12 +812,12 @@ export default function AdminNewProductPage() {
                   {brand || 'APPLE'} BRAND ARTIFACT
                 </span>
                 <h4 className="text-lg font-bold text-zinc-100 tracking-tight leading-snug truncate">
-                  {name || 'Untethered Gold Artifact'}
+                  {name || 'Untethered Blue Artifact'}
                 </h4>
               </div>
 
               <div className="flex items-baseline gap-2 font-mono">
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
+                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">
                   ₹{price.toLocaleString('en-IN')}
                 </span>
                 {originalPrice && (

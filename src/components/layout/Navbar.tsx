@@ -106,17 +106,17 @@ export const Navbar: React.FC = () => {
             <Link href="/wishlist" className="relative text-zinc-500 hover:text-white transition-colors">
               <Heart size={18} />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-black text-[8px] font-black rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-white text-[8px] font-black rounded-full flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Cart */}
-            <button onClick={openCart} className="relative text-zinc-500 hover:text-white transition-colors">
+            <button onClick={openCart} suppressHydrationWarning className="relative text-zinc-500 hover:text-white transition-colors">
               <ShoppingBag size={18} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-black text-[8px] font-black rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-white text-[8px] font-black rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -183,10 +183,10 @@ export const Navbar: React.FC = () => {
 
           {/* ── MOBILE ICONS ── */}
           <div className="flex md:hidden items-center gap-4">
-            <button onClick={openCart} className="relative text-zinc-400 hover:text-white">
+            <button onClick={openCart} suppressHydrationWarning className="relative text-zinc-400 hover:text-white">
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-black text-[8px] font-black rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-gold text-white text-[8px] font-black rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}

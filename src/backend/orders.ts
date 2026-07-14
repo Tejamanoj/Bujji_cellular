@@ -122,11 +122,19 @@ export async function fetchOrdersByCustomer(customerId: string): Promise<Order[]
   try {
     const q = query(
       collection(db, COLLECTION),
-      where('customerId', '==', customerId),
-      orderBy('date', 'desc')
+      where('customerId', '==', customerId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => mapDoc(d.id, d.data()));
+    const list = snapshot.docs.map((d) => mapDoc(d.id, d.data()));
+    
+    // Sort in memory by date descending
+    list.sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    return list;
   } catch (e: any) {
     console.error('❌ fetchOrdersByCustomer:', e.message);
     return [];

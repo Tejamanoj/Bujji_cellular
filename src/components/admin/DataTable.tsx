@@ -172,7 +172,7 @@ export function DataTable<T>({
                     type="checkbox"
                     checked={isAllSelected}
                     onChange={handleSelectAll}
-                    className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-light-gold focus:ring-light-gold/20 focus:ring-offset-0 accent-light-gold cursor-pointer"
                   />
                 </th>
               )}
@@ -191,9 +191,9 @@ export function DataTable<T>({
                       {col.header}
                       {isSortable && isSorted && (
                         sortConfig?.direction === 'asc' ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
+                          <ChevronUp className="w-3.5 h-3.5 text-light-gold" />
                         ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
+                          <ChevronDown className="w-3.5 h-3.5 text-light-gold" />
                         )
                       )}
                       {isSortable && !isSorted && (
@@ -230,7 +230,7 @@ export function DataTable<T>({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleSelectRow(keyVal)}
-                          className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-light-gold focus:ring-light-gold/20 focus:ring-offset-0 accent-light-gold cursor-pointer"
                         />
                       </td>
                     )}
@@ -280,7 +280,7 @@ export function DataTable<T>({
                   onClick={() => setCurrentPage(pageNum)}
                     className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all text-xs ${
                       isCurrent
-                        ? 'bg-amber-500 text-black border-amber-500 font-bold'
+                        ? 'bg-primary-gold text-white border-primary-gold font-bold'
                         : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
                     }`}
                 >

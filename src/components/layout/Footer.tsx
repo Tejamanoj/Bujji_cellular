@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
               </span>
             </Link>
             <p className="text-xs text-zinc-500 leading-relaxed max-w-xs">
-              India's premier luxury mobile destination. 24K gold-plated devices, expert repairs, and gold-tier service — crafted for the extraordinary.
+              India's premier premium mobile destination. Top brand devices, expert repairs, and elite support — crafted for your digital needs.
             </p>
             {/* Social icons */}
             <div className="flex items-center gap-3 pt-2">

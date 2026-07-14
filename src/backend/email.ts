@@ -6,8 +6,8 @@ export async function sendOtpEmail(to: string, otp: string) {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
-  if (!host || !user || !pass) {
-    console.warn('⚠️ SMTP credentials not fully configured. Using fallback console logging for OTP.');
+  if (!host || !user || !pass || user.includes('your-') || pass.includes('your-')) {
+    console.warn('⚠️ SMTP credentials not fully configured or contain placeholders. Using fallback console logging for OTP.');
     console.log(`\n==================================================`);
     console.log(`[EMAIL SIMULATOR]`);
     console.log(`To: ${to}`);

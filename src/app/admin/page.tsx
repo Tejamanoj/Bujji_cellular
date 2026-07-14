@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
       case 'delivered':
         return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
       case 'processing':
-        return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        return 'bg-primary-gold/10 text-light-gold border border-primary-gold/20';
       case 'shipped':
         return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
       case 'pending':
@@ -54,7 +54,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black font-sans tracking-tight text-white uppercase flex items-center gap-2">
-            Control Panel <span className="text-xs font-mono font-normal px-2.5 py-0.5 rounded-full bg-primary-gold/10 border border-primary-gold/20 text-primary-gold uppercase tracking-widest">Overview</span>
+            Control Panel <span className="text-xs font-mono font-normal px-2.5 py-0.5 rounded-full bg-primary-gold/10 border border-primary-gold/20 text-light-gold uppercase tracking-widest">Overview</span>
           </h1>
           <p className="text-xs text-zinc-550 mt-1 font-mono uppercase tracking-wide">
             Real-time shop statistics and system status updates.
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
           
           <Link
             href="/admin/products/new"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-amber-400 to-yellow-500 text-xs font-bold text-black rounded-xl hover:shadow-lg hover:shadow-yellow-500/10 transition-all uppercase tracking-wider"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl hover:shadow-lg hover:shadow-accent-gold/10 transition-all uppercase tracking-wider"
           >
             <Plus className="w-4 h-4 text-black" />
             Add Product
@@ -148,7 +148,7 @@ export default function AdminDashboardPage() {
             </h3>
             <Link
               href="/admin/orders"
-              className="text-xs text-primary-gold hover:underline font-semibold flex items-center gap-1 group"
+              className="text-xs text-light-gold hover:underline font-semibold flex items-center gap-1 group"
             >
               All Orders
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
@@ -223,7 +223,7 @@ export default function AdminDashboardPage() {
                     className="flex items-start justify-between gap-3 p-3.5 bg-white/2 border border-white/5 rounded-xl hover:border-primary-gold/20 transition-colors"
                   >
                     <div className="flex items-start gap-3 text-left">
-                      <div className="mt-0.5 p-1.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                      <div className="mt-0.5 p-1.5 rounded-lg bg-primary-gold/10 text-light-gold border border-primary-gold/20">
                         <AlertTriangle className="w-4 h-4" />
                       </div>
                       <div className="space-y-1">
@@ -241,14 +241,14 @@ export default function AdminDashboardPage() {
                         className={`inline-flex px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold ${
                           item.stock === 0
                             ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            : 'bg-primary-gold/10 text-light-gold border border-primary-gold/20'
                         }`}
                       >
                         {item.stock === 0 ? 'SOLD OUT' : `${item.stock} LEFT`}
                       </span>
                       <Link
                         href={`/admin/products`}
-                        className="text-[9px] font-mono uppercase text-primary-gold hover:underline font-bold"
+                        className="text-[9px] font-mono uppercase text-light-gold hover:underline font-bold"
                       >
                         Restock
                       </Link>

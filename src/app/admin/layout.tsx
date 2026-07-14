@@ -41,7 +41,7 @@ export default function AdminLayout({
           </div>
 
           <div className="sm:hidden flex items-center">
-            <span className="font-bold font-mono tracking-widest text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
+            <span className="font-bold font-mono tracking-widest text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">
               BUJJI CELLULARS
             </span>
           </div>
@@ -55,15 +55,15 @@ export default function AdminLayout({
             </div>
 
             {/* Notification Bell */}
-            <button className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-amber-400 hover:border-amber-500/20 transition-all duration-200 relative group">
+            <button className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-light-gold hover:border-primary-gold/20 transition-all duration-200 relative group">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 border border-zinc-900" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-light-gold border border-zinc-900" />
               
               {/* Simple Mock Notifications Dropdown */}
               <div className="absolute right-0 top-full mt-3 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-4 opacity-0 invisible group-focus-within:opacity-100 group-focus-within:visible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-left">
                 <div className="flex justify-between items-center pb-2 border-b border-zinc-800 mb-2">
                   <h4 className="text-xs font-bold text-zinc-300 font-mono uppercase tracking-wider">Notifications</h4>
-                  <span className="text-[10px] text-amber-400 cursor-pointer hover:underline">Mark read</span>
+                  <span className="text-[10px] text-light-gold cursor-pointer hover:underline">Mark read</span>
                 </div>
                 <div className="space-y-3 py-1">
                   <div className="text-xs space-y-1">
@@ -91,7 +91,7 @@ export default function AdminLayout({
               </div>
               <div className="hidden lg:flex flex-col text-left">
                 <span className="text-xs font-semibold text-zinc-300">Teja M</span>
-                <span className="text-[9px] text-zinc-500 tracking-wider font-mono uppercase font-bold text-amber-500">
+                <span className="text-[9px] text-zinc-550 tracking-wider font-mono uppercase font-bold text-blue-500">
                   Superadmin
                 </span>
               </div>

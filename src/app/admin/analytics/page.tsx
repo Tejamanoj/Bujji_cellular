@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useAdminStore } from '@/store/adminStore';
@@ -25,7 +25,7 @@ export default function AdminAnalyticsPage() {
         {/* Average Order Value */}
         <div className="border border-zinc-800 bg-zinc-950/60 rounded-2xl p-5 space-y-2">
           <span className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Average Order Value</span>
-          <h3 className="text-2xl font-bold text-zinc-100 font-mono">â‚¹188.50</h3>
+          <h3 className="text-2xl font-bold text-zinc-100 font-mono">₹188.50</h3>
           <p className="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" /> +4.2% vs last month
           </p>
@@ -43,7 +43,7 @@ export default function AdminAnalyticsPage() {
         {/* Customer Lifetime Value */}
         <div className="border border-zinc-800 bg-zinc-950/60 rounded-2xl p-5 space-y-2">
           <span className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Customer LTV</span>
-          <h3 className="text-2xl font-bold text-zinc-100 font-mono">â‚¹1,240.00</h3>
+          <h3 className="text-2xl font-bold text-zinc-100 font-mono">₹1,240.00</h3>
           <p className="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" /> +8.3% vs last quarter
           </p>
@@ -56,7 +56,7 @@ export default function AdminAnalyticsPage() {
         <div className="space-y-3">
           <div className="flex justify-between items-center text-xs font-mono uppercase text-zinc-500 tracking-wider">
             <span>Daily Revenue Growth</span>
-            <span className="text-amber-500">USD Velocity</span>
+            <span className="text-light-gold">USD Velocity</span>
           </div>
           <MiniBarChart data={analytics.revenueHistory} height={230} />
         </div>
@@ -65,7 +65,7 @@ export default function AdminAnalyticsPage() {
         <div className="space-y-3">
           <div className="flex justify-between items-center text-xs font-mono uppercase text-zinc-500 tracking-wider">
             <span>Category-wise sales distribution</span>
-            <span className="text-amber-500">Percentage Shares</span>
+            <span className="text-light-gold">Percentage Shares</span>
           </div>
           <MiniDonutChart data={analytics.categorySales} />
         </div>
@@ -76,7 +76,7 @@ export default function AdminAnalyticsPage() {
         {/* Top Products Table */}
         <div className="lg:col-span-2 space-y-3">
           <h3 className="text-sm font-bold font-mono tracking-wider uppercase text-zinc-400 flex items-center gap-2">
-            <Award className="w-4 h-4 text-amber-500" />
+            <Award className="w-4 h-4 text-light-gold" />
             Top Performing Artifacts
           </h3>
 
@@ -102,8 +102,8 @@ export default function AdminAnalyticsPage() {
                     <td className="px-5 py-4 text-right font-mono text-zinc-400">
                       {product.sales}
                     </td>
-                    <td className="px-5 py-4 text-right font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
-                      ${product.revenue.toLocaleString()}
+                    <td className="px-5 py-4 text-right font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">
+                      ₹{product.revenue.toLocaleString()}
                     </td>
                   </tr>
                 ))}
@@ -115,7 +115,7 @@ export default function AdminAnalyticsPage() {
         {/* Customer Growth Trends */}
         <div className="space-y-3">
           <h3 className="text-sm font-bold font-mono tracking-wider uppercase text-zinc-400 flex items-center gap-2">
-            <Users className="w-4 h-4 text-amber-500" />
+            <Users className="w-4 h-4 text-light-gold" />
             Growth Curve
           </h3>
 

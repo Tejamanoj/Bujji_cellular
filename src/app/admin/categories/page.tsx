@@ -100,7 +100,7 @@ export default function AdminCategoriesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <form onSubmit={handleCreateOrUpdate} className="lg:col-span-1 bg-black border border-zinc-900 p-6 rounded-2xl space-y-4 h-fit">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-light-gold">
             {editingId ? 'Edit Category Specifications' : 'Deploy New Category'}
           </h2>
 
@@ -114,7 +114,7 @@ export default function AdminCategoriesPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Futuristic holographic accessories"
-              className="w-full bg-[#111] border border-zinc-800 rounded-xl px-4 py-3 text-xs text-zinc-300 focus:outline-none focus:border-amber-500 transition-colors h-24"
+              className="w-full bg-[#111] border border-zinc-800 rounded-xl px-4 py-3 text-xs text-zinc-300 focus:outline-none focus:border-light-gold transition-colors h-24"
             />
           </div>
 
@@ -151,14 +151,14 @@ export default function AdminCategoriesPage() {
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-zinc-400">{cat.order}</span>
                       <div className="flex flex-col">
-                        <button onClick={() => moveOrder(idx, 'up')} className="text-zinc-650 hover:text-amber-500 transition-colors cursor-pointer"><ArrowUp size={10} /></button>
-                        <button onClick={() => moveOrder(idx, 'down')} className="text-zinc-650 hover:text-amber-500 transition-colors cursor-pointer"><ArrowDown size={10} /></button>
+                        <button onClick={() => moveOrder(idx, 'up')} className="text-zinc-650 hover:text-light-gold transition-colors cursor-pointer"><ArrowUp size={10} /></button>
+                        <button onClick={() => moveOrder(idx, 'down')} className="text-zinc-650 hover:text-light-gold transition-colors cursor-pointer"><ArrowDown size={10} /></button>
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => handleEdit(cat)} className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-amber-500 hover:border-amber-500/20 transition-all cursor-pointer"><Edit3 size={13} /></button>
+                      <button onClick={() => handleEdit(cat)} className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-light-gold hover:border-primary-gold/20 transition-all cursor-pointer"><Edit3 size={13} /></button>
                       <button onClick={() => handleDelete(cat.id)} className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"><Trash2 size={13} /></button>
                     </div>
                   </td>

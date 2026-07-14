@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 
@@ -42,7 +42,7 @@ export function MiniBarChart({ data, height = 200 }: MiniBarChartProps) {
             >
               {/* Tooltip */}
               <div
-                className={`absolute bottom-full mb-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 text-xs font-mono font-bold rounded-lg text-amber-400 shadow-xl pointer-events-none transition-all duration-200 z-10 ${
+                className={`absolute bottom-full mb-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 text-xs font-mono font-bold rounded-lg text-light-gold shadow-xl pointer-events-none transition-all duration-200 z-10 ${
                   isHovered ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-1 scale-95'
                 }`}
               >
@@ -55,13 +55,13 @@ export function MiniBarChart({ data, height = 200 }: MiniBarChartProps) {
                 style={{
                   height: `${Math.max(barHeight, 8)}px`,
                   background: isHovered
-                    ? 'linear-gradient(to top, #ca8a04, #f59e0b, #fbbf24)'
-                    : 'linear-gradient(to top, #18181b, #71717a, #ca8a04)',
-                  boxShadow: isHovered ? '0 0 15px rgba(245, 158, 11, 0.3)' : 'none',
+                    ? 'linear-gradient(to top, #0a0a54, #111184, #4f4fe3)'
+                    : 'linear-gradient(to top, #18181b, #3f3f46, #111184)',
+                  boxShadow: isHovered ? '0 0 15px rgba(79, 79, 227, 0.4)' : 'none',
                 }}
               >
                 {/* Glowing cap */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-amber-400 rounded-t-lg" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-light-gold rounded-t-lg" />
               </div>
             </div>
           );
@@ -93,10 +93,10 @@ export function MiniDonutChart({ data }: MiniDonutChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const colors = [
-    '#f59e0b', // Amber-500
-    '#ca8a04', // Yellow-600
-    '#71717a', // Zinc-500
-    '#3f3f46', // Zinc-700
+    '#4f4fe3', // Light blue
+    '#2a2ab8', // Accent blue
+    '#111184', // Dark blue
+    '#0a0a54', // Deepest blue
   ];
 
   const total = data.reduce((acc, curr) => acc + curr.value, 0);

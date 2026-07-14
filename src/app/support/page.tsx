@@ -12,16 +12,16 @@ interface FaqItem {
 
 const mockFaqs: FaqItem[] = [
   {
-    q: 'How do I polish the 24K gold finish?',
-    a: 'Each smartphone comes with an executive micro-buffing chamois. Wipe the gold bumper softly. Avoid hard abrasive metal polishers, as the diamond-like carbon topcoat protects the gold from day-to-day scrapes.',
+    q: 'How do I track my order?',
+    a: 'You can check your order status directly from your Profile page or using the tracking number sent to your email after your order is dispatched.',
   },
   {
     q: 'What is the refund escrow policy?',
-    a: 'We hold transaction funds in secure bank/crypto escrow for 30 days. If you request a return, we issue a pre-paid air priority shipping slip. Once the metal bumpers are inspected for scratches, the escrow releases funds back to your wallet.',
+    a: 'We hold transaction funds in secure escrow for 30 days. If you request a return, we issue a pre-paid priority shipping slip. Once the device is inspected, the escrow releases funds back to your wallet.',
   },
   {
-    q: 'How long does a bumper electroplate service take?',
-    a: 'Standard diagnostic and electroplating takes 2-3 business days. Courier pickup and return is overnight, so your total time without the device is less than 5 days.',
+    q: 'How long does a mobile repair service take?',
+    a: 'Standard diagnostic and repair takes 2-3 business days. Courier pickup and return is overnight, so your total time without the device is less than 5 days.',
   },
 ];
 
@@ -41,7 +41,7 @@ export default function SupportPage() {
 
   // Chat window state
   const [liveChatMessages, setLiveChatMessages] = useState([
-    { id: '1', sender: 'agent', text: 'Thank you for connecting with Bujji Concierge. How can I assist you with your gold-plated smartphone configurations?' },
+    { id: '1', sender: 'agent', text: 'Thank you for connecting with Bujji Support. How can I assist you with your mobile devices or repair orders today?' },
   ]);
   const [chatInput, setChatInput] = useState('');
 

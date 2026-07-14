@@ -27,8 +27,8 @@ export default function AdminProductsPage() {
     }
     if (stock < 10) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-primary-gold/10 text-light-gold border border-primary-gold/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-light-gold animate-pulse" />
           {stock} left
         </span>
       );
@@ -90,7 +90,7 @@ export default function AdminProductsPage() {
       header: 'Rating',
       accessor: (product) => (
         <div className="font-mono text-zinc-300 font-semibold flex items-center gap-1.5">
-          <span className="text-primary-gold">★</span>
+          <span className="text-light-gold">★</span>
           {product.rating.toFixed(1)}
         </div>
       ),
@@ -110,7 +110,7 @@ export default function AdminProductsPage() {
           </Link>
           <Link
             href={`/admin/products/${product.id}/edit`}
-            className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-colors"
+            className="p-2 rounded-xl bg-primary-gold/10 hover:bg-primary-gold/20 text-light-gold border border-primary-gold/20 transition-colors"
             title="Edit Product"
           >
             <Pencil className="w-4 h-4" />
@@ -188,9 +188,9 @@ export default function AdminProductsPage() {
 
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-amber-400 to-yellow-500 text-xs font-bold text-black rounded-xl hover:shadow-lg hover:shadow-yellow-500/10 transition-all uppercase tracking-wider"
+          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl hover:shadow-lg hover:shadow-accent-gold/10 transition-all uppercase tracking-wider"
         >
-          <Plus className="w-4 h-4 text-black" />
+          <Plus className="w-4 h-4 text-white" />
           Add Product
         </Link>
       </div>

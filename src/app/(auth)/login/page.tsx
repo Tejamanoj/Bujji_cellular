@@ -198,32 +198,33 @@ export default function LoginPage() {
         const loginData = await loginRes.json();
         
         if (loginRes.ok && loginData.success) {
-          addLog('Credentials verified. Initiating OTP handshake...');
+          addLog('Handshake secure. Welcome Administrator.');
+          showToast('Welcome Administrator!', 'success');
           
-          // Send OTP
-          const sendOtpRes = await fetch('/api/admin/send-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: adminId })
+          // Set store state directly to establish active session
+          useAuthStore.setState({
+            user: {
+              id: loginData.user.id,
+              name: 'Administrator',
+              email: loginData.user.email,
+              profileImage: '/images/avatar-placeholder.svg',
+              loyaltyPoints: 0
+            },
+            token: 'bujji_admin_token',
+            isAuthenticated: true,
+            isAdmin: true,
+            isLoading: false
           });
-          const sendOtpData = await sendOtpRes.json();
-          
-          if (sendOtpRes.ok && sendOtpData.success) {
-            addLog('OTP Security Code dispatched to registered email.');
-            showToast('OTP code sent to email!', 'success');
-            setTimeout(() => {
-              setIsVerifying(false);
-              router.push(`/admin/verify-otp?email=${encodeURIComponent(adminId)}`);
-            }, 1000);
-          } else {
-            addLog(`Failed to dispatch OTP: ${sendOtpData.error}`);
+
+          setTimeout(() => {
             setIsVerifying(false);
-            showToast(sendOtpData.error || 'Failed to send OTP.', 'error');
-          }
+            router.push('/admin');
+          }, 1000);
         } else {
-          addLog(`ACCESS DENIED. Error: ${loginData.error}`);
+          const err = loginData.error || 'Access denied.';
+          addLog(`ACCESS DENIED. Error: ${err}`);
           setIsVerifying(false);
-          showToast(loginData.error || 'Access denied.', 'error');
+          showToast(err, 'error');
         }
       } catch (err: any) {
         addLog(`Connection failed: ${err.message}`);
@@ -405,24 +406,29 @@ export default function LoginPage() {
           body: JSON.stringify({ email: targetEmail, password: 'Admin@123' })
         });
         const loginData = await loginRes.json();
-        
+
         if (loginRes.ok && loginData.success) {
-          // Send OTP
-          const sendOtpRes = await fetch('/api/admin/send-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: targetEmail })
-          });
-          const sendOtpData = await sendOtpRes.json();
+          showToast(`Face match verified! Welcome Administrator.`, 'success');
           
-          if (sendOtpRes.ok && sendOtpData.success) {
-            showToast(`Face match verified! OTP sent to registered email.`, 'success');
-            router.push(`/admin/verify-otp?email=${encodeURIComponent(targetEmail)}`);
-          } else {
-            showToast(sendOtpData.error || 'Failed to send OTP after face match.', 'error');
-          }
+          // Set store state directly to establish active session
+          useAuthStore.setState({
+            user: {
+              id: loginData.user.id,
+              name: 'Administrator',
+              email: loginData.user.email,
+              profileImage: '/images/avatar-placeholder.svg',
+              loyaltyPoints: 0
+            },
+            token: 'bujji_admin_token',
+            isAuthenticated: true,
+            isAdmin: true,
+            isLoading: false
+          });
+
+          router.push('/admin');
         } else {
-          showToast(loginData.error || 'Biometric login identity check failed.', 'error');
+          const err = loginData.error || 'Biometric login identity check failed.';
+          showToast(err, 'error');
         }
       } catch (err: any) {
         showToast('Biometric network request failed.', 'error');
@@ -529,7 +535,7 @@ export default function LoginPage() {
           <div className="animate-fade-in space-y-6 relative z-10">
             {isVerifying ? (
               <div className="space-y-4 font-mono">
-                <div className="flex items-center gap-3 text-amber-500 mb-4 animate-pulse">
+                <div className="flex items-center gap-3 text-blue-500 mb-4 animate-pulse">
                   <Terminal className="w-5 h-5" />
                   <span className="text-xs font-bold uppercase tracking-widest">System Override engaged</span>
                 </div>
@@ -558,7 +564,7 @@ export default function LoginPage() {
                           setAdminId('admin@bujjicellular.com');
                           setAdminPasskey('Admin@123');
                         }}
-                        className="text-[9px] uppercase font-mono text-amber-500/70 hover:text-amber-400 hover:underline cursor-pointer"
+                        className="text-[9px] uppercase font-mono text-blue-500/70 hover:text-blue-400 hover:underline cursor-pointer"
                       >
                         Autofill Demo Admin
                       </button>
@@ -571,7 +577,7 @@ export default function LoginPage() {
                       value={adminId}
                       onChange={(e) => setAdminId(e.target.value)}
                       placeholder="admin@bujjicellular.com"
-                      className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-xs placeholder-zinc-700"
+                      className="w-full bg-black/50 border border-zinc-800 text-blue-500 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono tracking-widest text-xs placeholder-zinc-700"
                     />
                   </div>
 
@@ -585,15 +591,15 @@ export default function LoginPage() {
                       value={adminPasskey}
                       onChange={(e) => setAdminPasskey(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full bg-black/50 border border-zinc-800 text-amber-500 px-4 py-3 rounded-lg focus:outline-none focus:border-amber-500 font-mono tracking-widest text-lg placeholder-zinc-700"
+                      className="w-full bg-black/50 border border-zinc-800 text-blue-500 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 font-mono tracking-widest text-lg placeholder-zinc-700"
                     />
                   </div>
 
                   <button 
                     type="submit" 
-                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-zinc-800 text-amber-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all group overflow-hidden relative cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-zinc-900 border border-zinc-800 hover:border-blue-500/50 hover:bg-zinc-800 text-blue-500 font-mono font-bold text-xs uppercase tracking-widest rounded-xl transition-all group overflow-hidden relative cursor-pointer"
                   >
-                    <div className="absolute inset-0 w-0 bg-amber-500/10 transition-all duration-500 group-hover:w-full" />
+                    <div className="absolute inset-0 w-0 bg-blue-500/10 transition-all duration-500 group-hover:w-full" />
                     <Fingerprint className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     <span>Initiate Security Access</span>
                   </button>
@@ -609,9 +615,9 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleStartFaceScan}
-                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-amber-500/20 to-yellow-500/10 hover:from-amber-400/30 hover:to-yellow-400/20 border border-amber-500/30 rounded-xl text-amber-400 font-mono text-xs uppercase tracking-wider transition-all cursor-pointer font-bold"
+                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-blue-500/20 to-[#111184]/10 hover:from-blue-400/30 hover:to-[#111184]/20 border border-blue-500/30 rounded-xl text-blue-400 font-mono text-xs uppercase tracking-wider transition-all cursor-pointer font-bold"
                 >
-                  <Scan className="w-4 h-4 text-amber-500" />
+                  <Scan className="w-4 h-4 text-blue-500" />
                   <span>Scan Face to Unlock</span>
                 </button>
               </div>
@@ -634,7 +640,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setIsAdminMode(!isAdminMode)}
-                className="text-[10px] uppercase tracking-widest font-mono font-bold text-zinc-600 hover:text-amber-500 transition-colors flex items-center gap-2 cursor-pointer"
+                className="text-[10px] uppercase tracking-widest font-mono font-bold text-zinc-600 hover:text-blue-500 transition-colors flex items-center gap-2 cursor-pointer"
               >
                 {isAdminMode ? (
                   <>Return to Standard Access</>
@@ -654,10 +660,10 @@ export default function LoginPage() {
       {/* ── BIOMETRIC SCAN OVERLAY MODAL ── */}
       {showFaceScan && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-          <div className="relative w-full max-w-sm border border-amber-500/30 bg-zinc-950 p-6 rounded-3xl space-y-6 text-center shadow-2xl relative overflow-hidden">
+          <div className="relative w-full max-w-sm border border-blue-500/30 bg-zinc-950 p-6 rounded-3xl space-y-6 text-center shadow-2xl relative overflow-hidden">
             {/* Holographic background matrix */}
-            <div className="absolute inset-0 bg-[radial-gradient(rgba(245,158,11,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-amber-500/5 blur-[50px] rounded-full" />
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(17,17,132,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-blue-500/5 blur-[50px] rounded-full" />
             
             <button
               onClick={stopStream}
@@ -667,12 +673,12 @@ export default function LoginPage() {
             </button>
 
             <div className="space-y-1 pt-4">
-              <h3 className="font-mono text-xs uppercase font-bold text-amber-500 tracking-widest">Face Recognition Scan</h3>
+              <h3 className="font-mono text-xs uppercase font-bold text-blue-500 tracking-widest">Face Recognition Scan</h3>
               <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-wide">Level 4 Biometric Handshake</p>
             </div>
 
             {/* Video Frame Feed */}
-            <div className="w-48 h-48 rounded-full border-2 border-dashed border-amber-500/40 p-2 mx-auto relative overflow-hidden bg-zinc-900 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+            <div className="w-48 h-48 rounded-full border-2 border-dashed border-blue-500/40 p-2 mx-auto relative overflow-hidden bg-zinc-900 flex items-center justify-center shadow-[0_0_30px_rgba(17,17,132,0.1)]">
               {/* Webcam stream viewport */}
               {stream ? (
                 <video
@@ -691,7 +697,7 @@ export default function LoginPage() {
 
               {/* Scanning moving grid line */}
               {scanStep === 2 && (
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_8px_#f59e0b] animate-bounce w-full" style={{ animationDuration: '2s' }} />
+                <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_8px_#111184] animate-bounce w-full" style={{ animationDuration: '2s' }} />
               )}
 
               {/* Lock indicator state */}
@@ -702,7 +708,7 @@ export default function LoginPage() {
               )}
               {scanStep < 4 && scanStep > 1 && !stream && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full border-2 border-t-amber-500 border-zinc-800 animate-spin" />
+                  <div className="w-12 h-12 rounded-full border-2 border-t-blue-500 border-zinc-800 animate-spin" />
                 </div>
               )}
             </div>
@@ -711,12 +717,12 @@ export default function LoginPage() {
             <div className="bg-black border border-zinc-900 rounded-2xl p-4 h-32 overflow-y-auto space-y-1 font-mono text-[9px] text-left text-zinc-400">
               {scanLogs.map((log, i) => (
                 <p key={i} className="animate-fade-in text-emerald-500/80">
-                  <span className="text-amber-500">&gt;&gt;</span> {log}
+                  <span className="text-blue-500">&gt;&gt;</span> {log}
                 </p>
               ))}
               {scanStep < 4 && (
                 <div className="flex items-center gap-1.5 text-zinc-550 pt-1">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
                   <span>Awaiting credentials handshake...</span>
                 </div>
               )}

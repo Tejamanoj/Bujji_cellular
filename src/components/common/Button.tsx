@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -36,11 +36,11 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    gold: 'bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] text-black shadow-[0_4px_15px_rgba(212,175,55,0.25)] hover:shadow-[0_6px_20px_rgba(212,175,55,0.4)]',
+    gold: 'bg-gradient-to-r from-[#111184] to-[#0a0a54] text-white shadow-[0_4px_15px_rgba(17,17,132,0.25)] hover:shadow-[0_6px_20px_rgba(17,17,132,0.4)]',
     outline:
-      'border border-[#D4AF37] text-[#D4AF37] bg-transparent hover:bg-[rgba(212,175,55,0.1)] hover:shadow-[0_0_10px_rgba(212,175,55,0.15)]',
+      'border border-[#111184] text-[#111184] bg-transparent hover:bg-[rgba(17,17,132,0.1)] hover:shadow-[0_0_10px_rgba(17,17,132,0.15)]',
     glass:
-      'glass-panel text-zinc-200 border-zinc-800 hover:border-[rgba(212,175,55,0.5)] hover:bg-zinc-900/80',
+      'glass-panel text-zinc-200 border-zinc-800 hover:border-[rgba(17,17,132,0.5)] hover:bg-zinc-900/80',
     ghost: 'text-zinc-400 hover:text-white hover:bg-zinc-900/50',
     danger:
       'bg-red-950/80 border border-red-800 text-red-200 hover:bg-red-900 hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.25)]',

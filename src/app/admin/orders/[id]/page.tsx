@@ -22,7 +22,7 @@ import Link from 'next/link';
 
 const STATUS_CONFIG: Record<Order['status'], { label: string; color: string; icon: React.ReactNode }> = {
   pending:    { label: 'Pending',    color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',     icon: <Clock className="w-3.5 h-3.5" /> },
-  processing: { label: 'Processing', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: <Package className="w-3.5 h-3.5" /> },
+  processing: { label: 'Processing', color: 'bg-primary-gold/10 text-light-gold border-primary-gold/20', icon: <Package className="w-3.5 h-3.5" /> },
   shipped:    { label: 'Shipped',    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',     icon: <Truck className="w-3.5 h-3.5" /> },
   delivered:  { label: 'Delivered',  color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: <CheckCircle className="w-3.5 h-3.5" /> },
   cancelled:  { label: 'Cancelled',  color: 'bg-rose-500/10 text-rose-400 border-rose-500/20',    icon: <XSquare className="w-3.5 h-3.5" /> },
@@ -47,10 +47,10 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-zinc-400 text-sm font-mono">Order <span className="text-amber-400">{orderId}</span> not found.</p>
+        <p className="text-zinc-400 text-sm font-mono">Order <span className="text-light-gold">{orderId}</span> not found.</p>
         <Link
           href="/admin/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-amber-400 font-mono transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-light-gold font-mono transition-colors uppercase tracking-wider"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Orders
@@ -79,7 +79,7 @@ export default function AdminOrderDetailPage() {
       <div className="space-y-2">
         <Link
           href="/admin/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-amber-400 font-mono transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-light-gold font-mono transition-colors uppercase tracking-wider"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Orders
@@ -92,7 +92,7 @@ export default function AdminOrderDetailPage() {
             </h1>
             <p className="text-xs text-zinc-500 font-mono mt-1 uppercase tracking-wider">
               Invoice ID:{' '}
-              <span className="text-amber-400 font-bold">{order.id}</span>
+              <span className="text-light-gold font-bold">{order.id}</span>
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export default function AdminOrderDetailPage() {
           <select
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value as Order['status'])}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-amber-400/50 cursor-pointer"
+            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-light-gold/50 cursor-pointer"
           >
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
@@ -125,7 +125,7 @@ export default function AdminOrderDetailPage() {
           <button
             onClick={handleStatusUpdate}
             disabled={updating || newStatus === order.status}
-            className="px-5 py-2 bg-gradient-to-br from-amber-400 to-yellow-500 text-xs font-bold text-black rounded-xl hover:shadow-lg hover:shadow-yellow-500/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer whitespace-nowrap"
+            className="px-5 py-2 bg-gradient-to-br from-accent-gold to-light-gold text-xs font-bold text-white rounded-xl hover:shadow-lg hover:shadow-accent-gold/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer whitespace-nowrap"
           >
             {updating ? 'Saving...' : 'Apply'}
           </button>
@@ -141,7 +141,7 @@ export default function AdminOrderDetailPage() {
           {/* Ordered Items */}
           <div className="border border-zinc-900 bg-zinc-950/60 rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-900 flex items-center justify-between">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold">
                 Ordered Hardware
               </h3>
               <span className="text-[10px] font-mono text-zinc-500">{order.items.length} items</span>
@@ -193,7 +193,7 @@ export default function AdminOrderDetailPage() {
           {/* Tracking Timeline */}
           <div className="border border-zinc-900 bg-zinc-950/60 rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-900">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold">
                 Tracking Timeline
               </h3>
             </div>
@@ -210,11 +210,11 @@ export default function AdminOrderDetailPage() {
                       <div key={idx} className="flex items-start gap-4 pb-6 relative">
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 z-10 ${
                           step.completed
-                            ? 'border-amber-400 bg-amber-500/20'
+                            ? 'border-light-gold bg-primary-gold/20'
                             : 'border-zinc-700 bg-zinc-900'
                         }`}>
                           {step.completed ? (
-                            <CheckCircle className="w-3 h-3 text-amber-400" />
+                            <CheckCircle className="w-3 h-3 text-light-gold" />
                           ) : (
                             <Circle className="w-3 h-3 text-zinc-600" />
                           )}
@@ -241,7 +241,7 @@ export default function AdminOrderDetailPage() {
           {/* Bill Calculation */}
           <div className="border border-zinc-900 bg-zinc-950/60 rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-900">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold">
                 Bill Summary
               </h3>
             </div>
@@ -264,7 +264,7 @@ export default function AdminOrderDetailPage() {
               </div>
               <div className="border-t border-zinc-800 pt-3 flex justify-between font-bold text-base">
                 <span className="text-zinc-200">Total</span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">
                   ₹{order.total.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -273,7 +273,7 @@ export default function AdminOrderDetailPage() {
 
           {/* Payment Method */}
           <div className="border border-zinc-900 bg-zinc-950/60 rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-zinc-500" />
               Payment
             </h3>
@@ -290,7 +290,7 @@ export default function AdminOrderDetailPage() {
 
           {/* Shipping Address */}
           <div className="border border-zinc-900 bg-zinc-950/60 rounded-2xl p-5 space-y-3">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-light-gold flex items-center gap-2">
               <MapPin className="w-4 h-4 text-zinc-500" />
               Ship To
             </h3>

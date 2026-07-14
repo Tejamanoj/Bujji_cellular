@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useAdminStore } from '@/store/adminStore';
@@ -54,13 +54,13 @@ export default function AdminCustomersPage() {
     },
     {
       header: 'Total Spent',
-      accessor: (customer) => <span className="font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">?{customer.totalSpent.toLocaleString()}</span>,
+      accessor: (customer) => <span className="font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold to-light-gold">₹{customer.totalSpent.toLocaleString()}</span>,
       sortKey: 'totalSpent',
     },
     {
       header: 'Loyalty Points',
       accessor: (customer) => (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-primary-gold/10 text-light-gold border border-primary-gold/20">
           <Sparkles className="w-3.5 h-3.5" />
           {customer.loyaltyPoints} PTS
         </span>
@@ -146,7 +146,7 @@ export default function AdminCustomersPage() {
         {selectedCustomer && (
           <div className="border border-zinc-900 bg-zinc-950/60 p-6 rounded-2xl space-y-5 sticky top-28 animate-fade-in">
             <div className="flex justify-between items-start pb-4 border-b border-zinc-900">
-              <h3 className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest">
+              <h3 className="text-xs font-mono font-bold text-light-gold uppercase tracking-widest">
                 Account Inspection
               </h3>
               <button
@@ -158,7 +158,7 @@ export default function AdminCustomersPage() {
             </div>
 
             <div className="flex flex-col items-center py-4 border-b border-zinc-900/60 gap-3 text-center">
-              <div className="w-20 h-20 rounded-full border-2 border-yellow-500/20 bg-zinc-900 overflow-hidden p-1">
+              <div className="w-20 h-20 rounded-full border-2 border-primary-gold/20 bg-zinc-900 overflow-hidden p-1">
                 {selectedCustomer.profileImage ? (
                   <img
                     src={selectedCustomer.profileImage}
@@ -198,7 +198,7 @@ export default function AdminCustomersPage() {
                 <Sparkles className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                 <span className="font-sans">
                   Loyalty Rank:{' '}
-                  <span className="font-mono font-bold text-amber-400">
+                  <span className="font-mono font-bold text-light-gold">
                     {selectedCustomer.loyaltyPoints} points
                   </span>
                 </span>
@@ -225,9 +225,9 @@ export default function AdminCustomersPage() {
               <span className="text-zinc-500">Loyalty Status:</span>
               <span className="font-bold text-zinc-200">
                 {selectedCustomer.loyaltyPoints > 5000
-                  ? 'Gold Sovereign'
+                  ? 'Blue Sovereign'
                   : selectedCustomer.loyaltyPoints > 1000
-                  ? 'Elite Gold'
+                  ? 'Elite Blue'
                   : 'Classic Member'}
               </span>
             </div>

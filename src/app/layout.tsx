@@ -19,11 +19,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Bujji Cellulars | Premium E-Commerce Mobile Tech & Accessories',
-  description: 'Welcome to Bujji Cellulars. Explore our futuristic, premium 24K gold-plated smartphones, high-fidelity earbuds, heavy-duty protective bumpers, and dynamic charging accessories. Built for elite performance.',
-  keywords: 'Bujji Cellulars, premium smartphones, gold smartphones, mobile accessories, Aerobuds, luxury electronics, 3D smartphone viewer',
+  description: 'Welcome to Bujji Cellulars. Explore our premium smartphones, high-fidelity earbuds, heavy-duty protective bumpers, and dynamic charging accessories. Built for elite performance.',
+  keywords: 'Bujji Cellulars, premium smartphones, mobile accessories, Aerobuds, electronics, 3D smartphone viewer',
   openGraph: {
-    title: 'Bujji Cellulars | Premium Futuristic E-Commerce',
-    description: 'High-end mobile accessories and futuristic tech, engineered for luxury performance.',
+    title: 'Bujji Cellulars | Premium E-Commerce',
+    description: 'High-end mobile accessories and premium tech, engineered for elite performance.',
     type: 'website',
   },
 };

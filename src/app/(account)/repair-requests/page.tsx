@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
+import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
@@ -11,6 +12,7 @@ import { Wrench, Calendar, MapPin, Upload, ChevronRight, HelpCircle } from 'luci
 export default function RepairRequestsPage() {
   const router = useRouter();
   const { repairRequests, addresses, submitRepairRequest, isLoading } = useUserStore();
+  const { user } = useAuthStore();
   const { showToast } = useUIStore();
 
   const [deviceName, setDeviceName] = useState('Bujji Gold-Phantom Smartphone');
@@ -31,6 +33,7 @@ export default function RepairRequestsPage() {
     
     try {
       const ticket = await submitRepairRequest(
+        user?.id || '',
         deviceName,
         issueDesc,
         mockFiles.length > 0 ? mockFiles : ['https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=800&auto=format&fit=crop&q=80'],
@@ -38,9 +41,13 @@ export default function RepairRequestsPage() {
         preferredDate,
         preferredTime
       );
-      showToast('Repair ticket registered successfully!', 'success');
-      setIssueDesc('');
-      router.push(`/repair-requests/${ticket.id}`);
+      if (ticket) {
+        showToast('Repair ticket registered successfully!', 'success');
+        setIssueDesc('');
+        router.push(`/repair-requests/${ticket.id}`);
+      } else {
+        showToast('Fulfillment failed. Try again.', 'error');
+      }
     } catch {
       showToast('Fulfillment failed. Try again.', 'error');
     }
